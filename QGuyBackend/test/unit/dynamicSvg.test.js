@@ -32,7 +32,7 @@ const lowTokenUri =
           const status = await dynamicSvgNft.getmembershipStatus();
           assert.equal(lowSVG, lowSVGImageuri);
           assert.equal(highSVG, highSVGimageUri);
-          assert.equal(status, initial_status);
+          assert.equal(status.toString(), initial_status.toString());
         });
       });
 
@@ -48,12 +48,29 @@ const lowTokenUri =
           const tokenURI = await dynamicSvgNft.tokenURI(0);
           assert.equal(tokenURI, highTokenUri);
         });
-        it("shifts the token uri to lower when the price doesn't surpass the highvalue", async function () {
+        it("shifts the token uri to when membership status is changed", async function () {
           const status = 0;
           const txResponse = await dynamicSvgNft.mintNft(status);
+          const tokenCounter = await dynamicSvgNft.getTokenCounter();
+          assert.equal(tokenCounter.toString(), "1");
           await txResponse.wait(1);
           const tokenURI = await dynamicSvgNft.tokenURI(0);
           assert.equal(tokenURI, lowTokenUri);
+        });
+        it("makes sure that the altered NFT is not a new NFT", async function () {
+          const status = 0;
+          const txResponse = await dynamicSvgNft.mintNft(status);
+          const tokenCounter = await dynamicSvgNft.getTokenCounter();
+          assert.equal(tokenCounter.toString(), "1");
+          const tokenURI = await dynamicSvgNft.tokenURI(0);
+          assert.equal(tokenURI, lowTokenUri);
+
+          const status2 = 1;
+          await dynamicSvgNft.setMembership(status2, 0);
+          const tokenCounter2 = await dynamicSvgNft.getTokenCounter();
+          assert.equal(tokenCounter2.toString(), "1");
+          const tokenURI2 = await dynamicSvgNft.tokenURI(0);
+          assert.equal(tokenURI2, highTokenUri);
         });
       });
 

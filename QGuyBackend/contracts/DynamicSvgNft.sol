@@ -112,4 +112,10 @@ contract DynamicSvgNft is ERC721, Ownable {
     function getTokenCounter() public view returns (uint256) {
         return s_tokenCounter;
     }
+
+    //change from public
+    function setMembership(int256 status, uint256 tokenId) public {
+        s_membership_status = status;
+        s_tokenIdToMembershipStatus[tokenId] = s_membership_status;
+    }
 }

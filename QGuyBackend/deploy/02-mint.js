@@ -5,9 +5,9 @@ module.exports = async function ({ getNamedAccounts }) {
   const { deployer } = await getNamedAccounts;
 
   //Dynamic SVG
-  const highValue = ethers.utils.parseEther("4000");
+  const membership_status = 0;
   const dynamicSvgNft = await ethers.getContract("DynamicSvgNft", deployer);
-  const dynamicSvgNftMintTx = await dynamicSvgNft.mintNft(highValue.toString());
+  const dynamicSvgNftMintTx = await dynamicSvgNft.mintNft(membership_status);
   await dynamicSvgNftMintTx.wait(1);
 
   console.log(

@@ -10,15 +10,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
   const chainId = network.config.chainId;
-  let ethUsdPriceFeedAddress;
-
-  if (chainId == 31337) {
-    // Find ETH/USD price feed
-    const EthUsdAggregator = await deployments.get("MockV3Aggregator");
-    ethUsdPriceFeedAddress = EthUsdAggregator.address;
-  } else {
-    ethUsdPriceFeedAddress = networkConfig[chainId].ethUsdPriceFeed;
-  }
+  const membership_status = 1;
 
   const lowSVG = fs.readFileSync("./images/frown.svg", {
     encoding: "utf8",
@@ -28,7 +20,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   });
 
   log("----------------------------------------------------");
-  arguments = [ethUsdPriceFeedAddress, lowSVG, highSVG];
+  arguments = [membership_status, lowSVG, highSVG];
   const dynamicSvgNft = await deploy("DynamicSvgNft", {
     from: deployer,
     args: arguments,

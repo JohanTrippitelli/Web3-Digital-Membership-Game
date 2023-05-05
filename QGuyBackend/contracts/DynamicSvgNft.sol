@@ -13,47 +13,29 @@ contract DynamicSvgNft is ERC721, Ownable {
     uint256 private s_tokenCounter;
     string private s_lowImageURI;
     string private s_highImageURI;
+    int256 private s_membership_status;
 
-    mapping(uint256 => int256) private s_tokenIdToHighValues;
-    AggregatorV3Interface internal immutable i_priceFeed;
-    event CreatedNFT(uint256 indexed tokenId, int256 highValue);
+    mapping(uint256 => int256) private s_tokenIdToMembershipStatus;
+    event CreatedNFT(uint256 indexed tokenId, int256 membership_status);
 
     constructor(
-        address priceFeedAddress,
+        int256 membership_status,
         string memory lowSvg,
         string memory highSvg
     ) ERC721("Dynamic SVG NFT", "DSN") {
         s_tokenCounter = 0;
-        i_priceFeed = AggregatorV3Interface(priceFeedAddress);
+        s_membership_status = membership_status;
         // setLowSVG(lowSvg);
         // setHighSVG(highSvg);
         s_lowImageURI = svgToImageURI(lowSvg);
         s_highImageURI = svgToImageURI(highSvg);
     }
 
-    // function setLowURI(string memory svgLowURI) public onlyOwner {
-    //     s_lowImageURI = svgLowURI;
-    // }
-
-    // function setHighURI(string memory svgHighURI) public onlyOwner {
-    //     s_highImageURI = svgHighURI;
-    // }
-
-    // function setLowSVG(string memory svgLowRaw) public onlyOwner {
-    //     string memory svgURI = svgToImageURI(svgLowRaw);
-    //     setLowURI(svgURI);
-    // }
-
-    // function setHighSVG(string memory svgHighRaw) public onlyOwner {
-    //     string memory svgURI = svgToImageURI(svgHighRaw);
-    //     setHighURI(svgURI);
-    // }
-
-    function mintNft(int256 highValue) public {
-        s_tokenIdToHighValues[s_tokenCounter] = highValue;
+    function mintNft(int256 membership_status) public {
+        s_tokenIdToMembershipStatus[s_tokenCounter] = membership_status;
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
-        emit CreatedNFT(s_tokenCounter, highValue);
+        emit CreatedNFT(s_tokenCounter, membership_status);
     }
 
     // You could also just upload the raw SVG and have solildity convert it!
@@ -86,9 +68,12 @@ contract DynamicSvgNft is ERC721, Ownable {
         if (!_exists(tokenId)) {
             revert ERC721Metadata__URI_QueryFor_NonExistentToken();
         }
-        (, int256 price, , , ) = i_priceFeed.latestRoundData();
         string memory imageURI = s_lowImageURI;
-        if (price >= s_tokenIdToHighValues[tokenId]) {
+        int256 membershipStatus = s_tokenIdToMembershipStatus[tokenId];
+
+        if (membershipStatus == 0) {
+            imageURI = s_lowImageURI;
+        } else if (membershipStatus == 1) {
             imageURI = s_highImageURI;
         }
         //The following return statement utilizes abi.encodepacked as a way of concatonating prefixes with our metadata then casting as a string
@@ -101,8 +86,8 @@ contract DynamicSvgNft is ERC721, Ownable {
                             abi.encodePacked(
                                 '{"name":"',
                                 name(), // You can add whatever name here
-                                '", "description":"My dynamic NFT", ',
-                                '"attributes": [{"trait_type": "head", "value": "nude"}, {"trait_type": "outer_chest", "value": "nude"}, {"trait_type": "inner_chest", "value": "nude"}, {"trait_type": "legs", "value": "nude"}, {"trait_type": "feet", "value": "nude"},], "image":"',
+                                '", "description":"Q", ',
+                                '"attributes": [{"trait_type": "Rank", "value": "King"}, {"trait_type": "suit", "value": "diamonds"}, {"trait_type": "head", "value": "none"}, {"trait_type": "outer_chest", "value": "none"}, {"trait_type": "inner_chest", "none": "nude"}, {"trait_type": "legs", "value": "none"}, {"trait_type": "feet", "value": "none"},], "image":"',
                                 imageURI,
                                 '"}'
                             )
@@ -120,8 +105,8 @@ contract DynamicSvgNft is ERC721, Ownable {
         return s_highImageURI;
     }
 
-    function getPriceFeed() public view returns (AggregatorV3Interface) {
-        return i_priceFeed;
+    function getmembershipStatus() public view returns (int256) {
+        return s_membership_status;
     }
 
     function getTokenCounter() public view returns (uint256) {

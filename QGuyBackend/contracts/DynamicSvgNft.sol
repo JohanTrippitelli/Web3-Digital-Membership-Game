@@ -14,6 +14,8 @@ contract DynamicSvgNft is ERC721, Ownable {
     string private s_lowImageURI;
     string private s_highImageURI;
     int256 private s_membership_status;
+    string private attributes;
+    string private fit;
 
     mapping(uint256 => int256) private s_tokenIdToMembershipStatus;
     event CreatedNFT(uint256 indexed tokenId, int256 membership_status);
@@ -21,12 +23,14 @@ contract DynamicSvgNft is ERC721, Ownable {
     constructor(
         int256 membership_status,
         string memory lowSvg,
-        string memory highSvg
+        string memory highSvg,
+        string memory Fit,
+        string memory Attributes
     ) ERC721("Dynamic SVG NFT", "DSN") {
         s_tokenCounter = 0;
         s_membership_status = membership_status;
-        // setLowSVG(lowSvg);
-        // setHighSVG(highSvg);
+        fit = Fit;
+        attributes = Attributes;
         s_lowImageURI = svgToImageURI(lowSvg);
         s_highImageURI = svgToImageURI(highSvg);
     }
@@ -87,7 +91,9 @@ contract DynamicSvgNft is ERC721, Ownable {
                                 '{"name":"',
                                 name(), // You can add whatever name here
                                 '", "description":"Q", ',
-                                '"attributes": [{"trait_type": "Rank", "value": "King"}, {"trait_type": "suit", "value": "diamonds"}, {"trait_type": "head", "value": "none"}, {"trait_type": "outer_chest", "value": "none"}, {"trait_type": "inner_chest", "none": "nude"}, {"trait_type": "legs", "value": "none"}, {"trait_type": "feet", "value": "none"},], "image":"',
+                                attributes,
+                                fit,
+                                '"image":"',
                                 imageURI,
                                 '"}'
                             )
@@ -111,6 +117,22 @@ contract DynamicSvgNft is ERC721, Ownable {
 
     function getTokenCounter() public view returns (uint256) {
         return s_tokenCounter;
+    }
+
+    function getFit() public view returns (string memory) {
+        return fit;
+    }
+
+    function getAttributes() public view returns (string memory) {
+        return attributes;
+    }
+
+    function setFit(string memory Fit) public {
+        fit = Fit;
+    }
+
+    function setAttributes(string memory Attributes) public {
+        attributes = Attributes;
     }
 
     //change from public

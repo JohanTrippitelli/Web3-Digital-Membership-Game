@@ -91,9 +91,11 @@ contract DynamicSvgNft is ERC721, Ownable {
                                 '{"name":"',
                                 name(), // You can add whatever name here
                                 '", "description":"Q", ',
+                                '"attributes":',
                                 attributes,
+                                ',"fit":',
                                 fit,
-                                '"image":"',
+                                ',"image":"',
                                 imageURI,
                                 '"}'
                             )

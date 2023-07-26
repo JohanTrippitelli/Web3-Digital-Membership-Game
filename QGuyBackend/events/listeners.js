@@ -36,7 +36,6 @@ async function startEventCapture() {
   contract.on("NFTStaked", async (staker, tokenId, event) => {
     //extract on chain attributes
     const attributes = await contract.getAttributes(tokenId);
-    console.log("chain attributes are:", attributes);
     //update
     updateCache(staker, tokenId, attributes);
     //log
@@ -71,8 +70,8 @@ async function removeCache(unstaker, tokenId) {
   //Update on-chain data using the retrieved attributes
   try {
     // Assuming you have a function in your smart contract to update attributes on-chain
-    // Replace 'contract' with your actual contract instance
-    //await contract.updateattributes(tokenId, attributes);
+
+    await contract.setAttributes(tokenId, attributes);
     console.log("cache attributes are:", attributes);
     // Successfully updated on-chain data, now proceed to Step 3
 

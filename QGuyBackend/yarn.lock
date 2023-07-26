@@ -5220,10 +5220,10 @@ hardhat-gas-reporter@^1.0.7:
     eth-gas-reporter "^0.2.25"
     sha1 "^1.1.1"
 
-hardhat@^2.15.0:
-  version "2.15.0"
-  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.15.0.tgz#0cacb2b44c4c4651aa8ab649fef12804848b0267"
-  integrity sha512-cC9tM/N10YaES04zPOp7yR13iX3YibqaNmi0//Ep40Nt9ELIJx3kFpQmucur0PAIfXYpGnw5RuXHNLkxpnVHEw==
+hardhat@^2.17.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.17.0.tgz#574478790fa4f4a45c5ccf162e82e54f36671749"
+  integrity sha512-CaEGa13tkJNe2/rdaBiive4pmdNShwxvdWVhr1zfb6aVpRhQt9VNO0l/UIBt/zzajz38ZFjvhfM2bj8LDXo9gw==
   dependencies:
     "@ethersproject/abi" "^5.1.2"
     "@metamask/eth-sig-util" "^4.0.0"
@@ -5264,7 +5264,6 @@ hardhat@^2.15.0:
     mnemonist "^0.38.0"
     mocha "^10.0.0"
     p-map "^4.0.0"
-    qs "^6.7.0"
     raw-body "^2.4.1"
     resolve "1.17.0"
     semver "^6.3.0"
@@ -8290,7 +8289,7 @@ qs@6.11.0:
   dependencies:
     side-channel "^1.0.4"
 
-qs@^6.4.0, qs@^6.7.0, qs@^6.9.4:
+qs@^6.4.0, qs@^6.9.4:
   version "6.11.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.1.tgz#6c29dff97f0c0060765911ba65cbc9764186109f"
   integrity sha512-0wsrzgTz/kAVIeuxSjnpGC56rzYtr6JT/2BwEvMaPhFIoYa1aGO8LbzuU1R0uUYQkLpWBTOj0l/CLAJB64J6nQ==

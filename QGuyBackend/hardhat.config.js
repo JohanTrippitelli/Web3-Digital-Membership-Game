@@ -4,16 +4,15 @@ require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 require("solidity-coverage");
 require("hardhat-deploy");
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-const S_API_URL = process.env.S_API_URL || "";
-const G_API_URL = process.env.G_API_URL || "";
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || "";
-const S_PRIVATE_KEY = process.env.S_PRIVATE_KEY || "";
-const G_PRIVATE_KEY = process.env.G_PRIVATE_KEY || "";
+const API_URL = process.env.API_URL || "";
+const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
 module.exports = {
@@ -23,20 +22,12 @@ module.exports = {
       chainId: 31337,
       // gasPrice: 130000000000,
     },
-    sepolia: {
-      url: S_API_URL,
-      accounts: [`0x${S_PRIVATE_KEY}`],
-    },
     goerli: {
-      url: G_API_URL,
-      accounts: [`0x${G_PRIVATE_KEY}`],
+      url: API_URL,
+      accounts: [`0x${PRIVATE_KEY}`],
+      chainId: 5,
+      blockConfirmations: 6,
     },
-    // mainnet: {
-    //   url: process.env.MAINNET_RPC_URL,
-    //   accounts: [PRIVATE_KEY],
-    //   chainId: 1,
-    //   blockConfirmations: 6,
-    // },
   },
   solidity: {
     compilers: [
@@ -56,7 +47,7 @@ module.exports = {
     currency: "USD",
     outputFile: "gas-report.txt",
     noColors: true,
-    // coinmarketcap: COINMARKETCAP_API_KEY,
+    coinmarketcap: COINMARKETCAP_API_KEY,
   },
   namedAccounts: {
     deployer: {

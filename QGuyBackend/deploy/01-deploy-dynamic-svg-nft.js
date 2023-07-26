@@ -1,30 +1,15 @@
-const { network } = require("hardhat");
-const {
-  networkConfig,
-  developmentChains,
-} = require("../helper-hardhat-config");
+const { network, ethers } = require("hardhat");
+const { developmentChains } = require("../helper-hardhat-config");
 const { verify } = require("../utils/verify");
-const fs = require("fs");
-const fit =
-  '[{"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
-const attributes =
-  '[{"trait_type": "Rank", "value": "King"},{"trait_type": "suit", "value": "diamonds"}]';
+
+const mintFee = ethers.utils.parseEther("0.01"); // Set the mint fee to 0.01 ETH
+
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = network.config.chainId;
-  const membership_status = 1;
 
-  const lowSVG = fs.readFileSync("./images/frown.svg", {
-    encoding: "utf8",
-  });
-  const highSVG = fs.readFileSync("./images/happy.svg", {
-    encoding: "utf8",
-  });
-
-  log("----------------------------------------------------");
-  arguments = [membership_status, lowSVG, highSVG, fit, attributes];
-  const dynamicSvgNft = await deploy("DynamicSvgNft", {
+  arguments = [mintFee];
+  const dynamicPngNft = await deploy("DynamicPngNft", {
     from: deployer,
     args: arguments,
     log: true,
@@ -37,8 +22,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     process.env.ETHERSCAN_API_KEY
   ) {
     log("Verifying...");
-    await verify(dynamicSvgNft.address, arguments);
+    await verify(dynamicPngNft.address, arguments);
   }
+
+  // Log the contract address
+  console.log("Contract deployed at:", dynamicPngNft.address);
 };
 
-module.exports.tags = ["all", "dynamicsvg", "main"];
+module.exports.tags = ["all", "dynamicpng", "main"];

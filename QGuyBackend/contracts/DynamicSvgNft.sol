@@ -1,64 +1,58 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.8;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "base64-sol/base64.sol";
 import "hardhat/console.sol";
 
 error ERC721Metadata__URI_QueryFor_NonExistentToken();
 
-contract DynamicSvgNft is ERC721, Ownable {
+contract DynamicPngNft is ERC721Enumerable, Ownable {
     uint256 private s_tokenCounter;
-    string private s_lowImageURI;
-    string private s_highImageURI;
-    int256 private s_membership_status;
-    string private attributes;
-    string private fit;
+    bool private s_isQR;
+    uint256 s_mintFee;
 
     mapping(uint256 => int256) private s_tokenIdToMembershipStatus;
-    event CreatedNFT(uint256 indexed tokenId, int256 membership_status);
+    mapping(uint256 => string) private s_tokenIdToImageURL;
+    mapping(uint256 => string) private s_tokenIdToAttributes;
+    mapping(uint256 => string) private s_tokenIdToFit;
+    mapping(uint256 => bool) private s_tokenIdToStaked;
 
-    constructor(
-        int256 membership_status,
-        string memory lowSvg,
-        string memory highSvg,
-        string memory Fit,
-        string memory Attributes
-    ) ERC721("Dynamic SVG NFT", "DSN") {
+    //Event Definition
+    event CreatedNFT(uint256 indexed tokenId, int256 membership_status);
+    event NFTStaked(address indexed staker, uint256 indexed tokenId);
+    event NFTUnstaked(address indexed unstaker, uint256 indexed tokenId);
+
+    constructor(uint256 mintFee) ERC721("Dynamic PNG NFT", "DSN") {
         s_tokenCounter = 0;
-        s_membership_status = membership_status;
-        fit = Fit;
-        attributes = Attributes;
-        s_lowImageURI = svgToImageURI(lowSvg);
-        s_highImageURI = svgToImageURI(highSvg);
+        s_mintFee = mintFee;
     }
 
-    function mintNft(int256 membership_status) public {
+    function mintNft(
+        int256 membership_status,
+        string memory imageURL,
+        string memory attributes,
+        string memory fit,
+        bool isQR
+    ) public payable {
+        require(msg.value >= s_mintFee, "More ETH required");
+
+        //set state variables and mapping according to the given parameters
+        s_isQR = isQR;
+        //membership
         s_tokenIdToMembershipStatus[s_tokenCounter] = membership_status;
+        //imageURL
+        s_tokenIdToImageURL[s_tokenCounter] = imageURL;
+        //attributes
+        s_tokenIdToAttributes[s_tokenCounter] = attributes;
+        //fit
+        s_tokenIdToFit[s_tokenCounter] = fit;
+        //Mint the NFT now, increment the token counter, and emit the created event
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
         emit CreatedNFT(s_tokenCounter, membership_status);
     }
-
-    // You could also just upload the raw SVG and have solildity convert it!
-    function svgToImageURI(
-        string memory svg
-    ) public pure returns (string memory) {
-        // example:
-        // '<svg width="500" height="500" viewBox="0 0 285 350" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="black" d="M150,0,L75,200,L225,200,Z"></path></svg>'
-        // would return ""
-        string memory baseURL = "data:image/svg+xml;base64,";
-        string memory svgBase64Encoded = Base64.encode(
-            bytes(string(abi.encodePacked(svg)))
-        );
-        return string(abi.encodePacked(baseURL, svgBase64Encoded));
-    }
-
-    //data:image/svg+xml;base64 represents the prefix needed for image data
-    //data:application/json;base64 represents the prefix needed for JSON data
-    //Both of these are used for Base64 encoding of our NFT image data and metadata
 
     //The baseURI is an inherint attribute of the ERC721 which we will override in this function to properly convert our metadata
     function _baseURI() internal pure override returns (string memory) {
@@ -72,14 +66,14 @@ contract DynamicSvgNft is ERC721, Ownable {
         if (!_exists(tokenId)) {
             revert ERC721Metadata__URI_QueryFor_NonExistentToken();
         }
-        string memory imageURI = s_lowImageURI;
-        int256 membershipStatus = s_tokenIdToMembershipStatus[tokenId];
 
-        if (membershipStatus == 0) {
-            imageURI = s_lowImageURI;
-        } else if (membershipStatus == 1) {
-            imageURI = s_highImageURI;
-        }
+        //Set the necessary variables from the state variable mappings
+        string memory imageURL = s_tokenIdToImageURL[tokenId];
+        string memory attributes = s_tokenIdToAttributes[tokenId];
+        string memory fit = s_tokenIdToFit[tokenId];
+        // Retrieve the staking status of the NFT
+        bool staked = s_tokenIdToStaked[tokenId];
+
         //The following return statement utilizes abi.encodepacked as a way of concatonating prefixes with our metadata then casting as a string
         return
             string(
@@ -96,7 +90,9 @@ contract DynamicSvgNft is ERC721, Ownable {
                                 ',"fit":',
                                 fit,
                                 ',"image":"',
-                                imageURI,
+                                imageURL,
+                                '","staked":"',
+                                staked ? "true" : "false",
                                 '"}'
                             )
                         )
@@ -105,41 +101,85 @@ contract DynamicSvgNft is ERC721, Ownable {
             );
     }
 
-    function getLowSVG() public view returns (string memory) {
-        return s_lowImageURI;
+    function stakeNFT(uint256 tokenId) public onlyOwner {
+        require(
+            ownerOf(tokenId) == msg.sender,
+            "Only the owner can stake the NFT"
+        );
+        require(!s_tokenIdToStaked[tokenId], "NFT is already staked");
+
+        // Add any additional staking logic here, such as updating balances or permissions
+
+        s_tokenIdToStaked[tokenId] = true;
+
+        // Emit the event after the NFT is staked
+        emit NFTStaked(msg.sender, tokenId);
     }
 
-    function getHighSVG() public view returns (string memory) {
-        return s_highImageURI;
-    }
+    function unstakeNFT(uint256 tokenId) public onlyOwner {
+        require(
+            ownerOf(tokenId) == msg.sender,
+            "Only the owner can unstake the NFT"
+        );
+        require(s_tokenIdToStaked[tokenId], "NFT is not staked");
 
-    function getmembershipStatus() public view returns (int256) {
-        return s_membership_status;
+        // Add any additional unstaking logic here
+
+        s_tokenIdToStaked[tokenId] = false;
+
+        // Emit the event after the NFT is unstaked
+        emit NFTUnstaked(msg.sender, tokenId);
     }
 
     function getTokenCounter() public view returns (uint256) {
         return s_tokenCounter;
     }
 
-    function getFit() public view returns (string memory) {
-        return fit;
+    function getStaked(uint256 tokenId) public view returns (bool) {
+        return s_tokenIdToStaked[tokenId];
     }
 
-    function getAttributes() public view returns (string memory) {
-        return attributes;
+    function getMembershipStatus(uint256 tokenId) public view returns (int256) {
+        return s_tokenIdToMembershipStatus[tokenId];
     }
 
-    function setFit(string memory Fit) public {
-        fit = Fit;
+    function getAttributes(
+        uint256 tokenId
+    ) public view returns (string memory) {
+        return s_tokenIdToAttributes[tokenId];
     }
 
-    function setAttributes(string memory Attributes) public {
-        attributes = Attributes;
+    function getImage(uint256 tokenId) public view returns (string memory) {
+        return s_tokenIdToImageURL[tokenId];
     }
 
-    //change from public
-    function setMembership(int256 status, uint256 tokenId) public {
-        s_membership_status = status;
-        s_tokenIdToMembershipStatus[tokenId] = s_membership_status;
+    function getFit(uint256 tokenId) public view returns (string memory) {
+        return s_tokenIdToFit[tokenId];
+    }
+
+    function setFit(uint256 tokenId, string memory fit) public onlyOwner {
+        s_tokenIdToFit[tokenId] = fit;
+    }
+
+    function setAttributes(
+        uint256 tokenId,
+        string memory attributes
+    ) public onlyOwner {
+        s_tokenIdToAttributes[tokenId] = attributes;
+    }
+
+    function setMembership(uint256 tokenId, int256 status) public onlyOwner {
+        s_tokenIdToMembershipStatus[tokenId] = status;
+    }
+
+    function setImage(uint256 tokenId, string memory image) public onlyOwner {
+        int256 membership_status = getMembershipStatus(tokenId);
+        if (membership_status == 1) {
+            s_tokenIdToImageURL[tokenId] = image;
+        }
+    }
+
+    function setMintFee(uint256 mintFee) public onlyOwner {
+        s_mintFee = mintFee;
     }
 }

@@ -10,6 +10,7 @@
     "hardhat": "^2.17.0",
     "hardhat-deploy": "^0.10.5",
     "hardhat-gas-reporter": "^1.0.7",
+    "node-cache": "^5.1.2",
     "nodemon": "^2.0.22",
     "prettier": "^2.5.1",
     "solidity-coverage": "^0.7.18"

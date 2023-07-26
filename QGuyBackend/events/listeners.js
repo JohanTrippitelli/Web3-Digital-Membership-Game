@@ -2,7 +2,7 @@
 const NodeCache = require("node-cache");
 //Other Imports
 const { ethers } = require("ethers");
-const contract = require("../artifacts/contracts/DynamicSvgNft.sol/DynamicPngNft.json");
+const contract = require("../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
 
 const contractAddress = process.env.CONTRACT_ADDRESS; //Deployed contract address
 const contractABI = contract.abi;
@@ -34,44 +34,46 @@ async function startEventCapture() {
 
   // Listen for NFTStaked events
   contract.on("NFTStaked", async (staker, tokenId, event) => {
-    //extract on chain metadata
-    const metadata = await contract.tokenURI(0);
-    console.log(metadata);
+    //extract on chain attributes
+    const attributes = await contract.getAttributes(tokenId);
+    console.log("chain attributes are:", attributes);
     //update
-    updateCache(staker, tokenId, metadata);
+    updateCache(staker, tokenId, attributes);
     //log
     console.log(
       `NFTStaked event captured. Staker: ${staker}, TokenId: ${tokenId}`
     );
+    console.log(`Attributes at ${tokenId} are: `, getAttributes(tokenId));
   });
 
   // Listen for NFTUnstaked events
   contract.on("NFTUnstaked", (unstaker, tokenId, event) => {
-    // Remove the metadata for the tokenId from the in-memory cache
-    removeFromCache(tokenId);
+    // Remove the attributes for the tokenId from the in-memory cache
+    removeCache(unstaker, tokenId);
     console.log(
       `NFTUnstaked event captured. Unstaker: ${unstaker}, TokenId: ${tokenId}`
     );
+    console.log(`Attributes at ${tokenId} are: `, getAttributes(tokenId));
   });
 }
 
-function updateCache(staker, tokenId, metadata) {
-  // Update the tokenId -> metadata cache
-  updateToken(tokenId, metadata);
+function updateCache(staker, tokenId, attributes) {
+  // Update the tokenId -> attributes cache
+  updateToken(tokenId.toString(), attributes);
   //Update the address -> tokenIds
   updateWallet(staker, tokenId);
 }
 
 async function removeCache(unstaker, tokenId) {
-  //retrieve the current metadata from cache update on chain attributes and remove the tokenId from the cache
-  const metadata = getMetadata(tokenId);
+  //retrieve the current attributes from cache update on chain attributes and remove the tokenId from the cache
+  const attributes = getAttributes(tokenId);
 
-  //Update on-chain data using the retrieved metadata
+  //Update on-chain data using the retrieved attributes
   try {
-    // Assuming you have a function in your smart contract to update metadata on-chain
+    // Assuming you have a function in your smart contract to update attributes on-chain
     // Replace 'contract' with your actual contract instance
-    //await contract.updateMetadata(tokenId, metadata);
-
+    //await contract.updateattributes(tokenId, attributes);
+    console.log("cache attributes are:", attributes);
     // Successfully updated on-chain data, now proceed to Step 3
 
     // Step 3: Remove the token ID from the cache
@@ -84,8 +86,8 @@ async function removeCache(unstaker, tokenId) {
   }
 }
 
-function updateToken(tokenId, metadata) {
-  cache.set(tokenId, metadata);
+function updateToken(tokenId, attributes) {
+  cache.set(tokenId.toString(), attributes);
 }
 
 function updateWallet(walletAddress, tokenId) {
@@ -105,9 +107,9 @@ function getStakedTokens(walletAddress) {
   return cache.get(walletAddress) || new Set();
 }
 
-// Function to retrieve metadata for a token ID from the cache
-function getMetadata(tokenId) {
-  // Get the metadata for the token ID from the cache
+// Function to retrieve attributes for a token ID from the cache
+function getAttributes(tokenId) {
+  // Get the attributes for the token ID from the cache
   return cache.get(tokenId.toString()) || null;
 }
 

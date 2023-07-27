@@ -101,7 +101,7 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
             );
     }
 
-    function stakeNFT(uint256 tokenId) public onlyOwner {
+    function stakeNFT(uint256 tokenId) public {
         require(
             ownerOf(tokenId) == msg.sender,
             "Only the owner can stake the NFT"
@@ -116,7 +116,7 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         emit NFTStaked(msg.sender, tokenId);
     }
 
-    function unstakeNFT(uint256 tokenId) public onlyOwner {
+    function unstakeNFT(uint256 tokenId) public {
         require(
             ownerOf(tokenId) == msg.sender,
             "Only the owner can unstake the NFT"

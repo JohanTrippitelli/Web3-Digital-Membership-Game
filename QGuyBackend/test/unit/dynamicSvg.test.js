@@ -406,5 +406,22 @@ const alteredURI =
           stake = await dynamicPngNft.getStaked(0);
           assert.equal(false, stake);
         });
+        it("stakes only when the owner of the NFT token calls the function", async function () {
+          const status = 0;
+          let stake;
+
+          const txResponse = await dynamicPngNft.mintNft(
+            status,
+            originalImageURL,
+            initial_attributes,
+            initial_fit,
+            false,
+            { value: mintFee } // Pass the mint fee as the value field in the transaction
+          );
+
+          await expect(
+            dynamicPngNft.connect(accounts[1]).stakeNFT(0)
+          ).to.be.revertedWith("Only the owner can stake the NFT");
+        });
       });
     });

@@ -79,10 +79,14 @@ async function stakeNFT(tokenId, walletAddress, privateKey) {
     console.log(
       `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} after staking`
     );
+
     // return success if successful
     return { success: true, message: "NFT staked successfully" };
   } catch (error) {
-    const revertReason = extractRevertReason(error.message);
+    let revertReason = extractRevertReason(error.message);
+    if (revertReason == null) {
+      revertReason = error.message;
+    }
     console.error("Error staking NFT:", revertReason);
     return { success: false, message: "Error staking NFT: " + revertReason };
   }
@@ -101,18 +105,36 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
     // Wait for the transaction to be mined
     await stakingTx.wait();
 
+    let stakedTokens, printStakedTokens;
+
+    stakedTokens = await getValueFromRedis(walletAddress);
+    if (stakedTokens == null) {
+      printStakedTokens = "No Tokens at All";
+    } else {
+      printStakedTokens = stakedTokens;
+    }
+    console.log(
+      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} before staking`
+    );
+
     // Remove the attributes for the tokenId from the in-memory cache
     removeCache(walletAddress, tokenId, smartContract);
 
-    //Get the wallet address' tokens
-    const stakedTokens = getValueFromRedis(walletAddress);
-    console.log("This is the cache:", stakedTokens);
-    const stakedTokensAsString = Array.from(stakedTokens, (token) =>
-      token.toString()
+    stakedTokens = await getValueFromRedis(walletAddress);
+    if (stakedTokens == null) {
+      printStakedTokens = "No Tokens at All";
+    } else {
+      printStakedTokens = stakedTokens;
+    }
+    //logs
+    console.log(
+      `Attributes at ${tokenId} are: `,
+      await getValueFromRedis(tokenId)
     );
     console.log(
-      `Wallet at address ${walletAddress} currently owns token ${stakedTokensAsString} After unstaking`
+      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} after staking`
     );
+
     // return success if successful
     return { success: true, message: "NFT unstaked successfully" };
   } catch (error) {
@@ -123,36 +145,43 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
 }
 
 async function updateCache(walletAddress, tokenId, attributes) {
+  console.log("Adding Key ------------------------------------");
   let stakedTokens, stakersTokens;
   // Update the tokenId -> attributes
   await setValueInRedis(tokenId, attributes);
-
-  //Check to see if the walletAddress has any tokens associated to it
+  // Check to see if the walletAddress has any tokens associated with it
   stakedTokens = await getValueFromRedis(walletAddress);
-  if (stakedTokens == null) {
+  if (!stakedTokens) {
+    // If stakedTokens is null or undefined, initialize an empty array
     stakersTokens = [tokenId];
-  } else {
+  } else if (Array.isArray(stakedTokens)) {
+    // If stakedTokens is already an array, push the tokenId
     stakedTokens.push(tokenId);
     stakersTokens = stakedTokens;
+  } else {
+    // If stakedTokens is neither null nor an array, handle it as needed (e.g., convert to an array)
+    stakersTokens = [tokenId];
   }
-  //Update the address -> tokenIds
+  // Update the address -> tokenIds
   await setValueInRedis(walletAddress, stakersTokens);
 }
 
 async function removeCache(walletAddress, tokenId, contract) {
+  console.log("Deleting Key ------------------------------------");
   //Update on-chain data using the retrieved attributes
   try {
     // Update attributes on-chain
+    const attributes = await getValueFromRedis(tokenId);
     const unstakingTx = await contract.setAttributes(tokenId, attributes);
     await unstakingTx.wait();
 
     //Remove the tokenId key
-    deleteKeyFromRedis(tokenId);
+    await deleteKeyFromRedis(tokenId);
     // Remove the token ID from the list of the walletAdress
-    const stakedTokens = getValueFromRedis(walletAddress);
+    const stakedTokens = await getValueFromRedis(walletAddress);
     if (stakedTokens.length == 1) {
       //walletAddress previously owned only this token therefore delete the key
-      deleteKeyFromRedis(walletAddress);
+      await deleteKeyFromRedis(walletAddress);
     } else {
       //walletAddress owned multiple tokens therefore remove this one from the list
       // Find the index of the element to remove
@@ -181,7 +210,6 @@ function extractRevertReason(errorMessage) {
 // Function to get a value from Redis
 async function getValueFromRedis(key) {
   try {
-    console.log("Getting value from Redis for key:", key.toString());
     const value = await redisClient.get(key.toString());
     return value;
   } catch (error) {
@@ -192,7 +220,6 @@ async function getValueFromRedis(key) {
 // Function to set a value in Redis
 async function setValueInRedis(key, value) {
   try {
-    console.log("Setting value in Redis for key:", key);
     await redisClient.set(key.toString(), value.toString());
     return true;
   } catch (error) {
@@ -204,8 +231,7 @@ async function setValueInRedis(key, value) {
 // Function to delete a key from Redis
 async function deleteKeyFromRedis(key) {
   try {
-    console.log("Deleting key from Redis:", key);
-    await redisClient.delAsync(key.toString());
+    await redisClient.del(key.toString());
     return true;
   } catch (error) {
     console.error("Error deleting key from Redis:", error);

@@ -118,7 +118,7 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
     );
 
     // Remove the attributes for the tokenId from the in-memory cache
-    removeCache(walletAddress, tokenId, smartContract);
+    await removeCache(walletAddress, tokenId, smartContract);
 
     stakedTokens = await getValueFromRedis(walletAddress);
     if (stakedTokens == null) {

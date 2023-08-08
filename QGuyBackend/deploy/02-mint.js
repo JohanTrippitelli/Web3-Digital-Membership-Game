@@ -6,6 +6,8 @@ const fit =
   '[{"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
 const attributes =
   '[{"trait_type": "Rank", "value": "King"},{"trait_type": "suit", "value": "diamonds"}]';
+const attributes2 =
+  '[{"trait_type": "Rank", "value": "Queen"},{"trait_type": "suit", "value": "spades"}]';
 
 //Specify the image pathways
 const imagesLocation = "./images/dynamicTesting";
@@ -46,6 +48,25 @@ module.exports = async function ({ getNamedAccounts }) {
     { value: mintFee } // Pass the mint fee as the value field in the transaction
   );
   await dynamicPngNftMintTx.wait(1);
+
+  const dynamicPngNftMintTx2 = await dynamicPngNftContract.mintNft(
+    membership_status,
+    PNG,
+    attributes2,
+    fit,
+    false,
+    {
+      value: mintFee,
+    }
+  );
+  await dynamicPngNftMintTx2.wait(1);
+
+  // Transfer NFT to another address
+  const accounts = await ethers.getSigners();
+  const recipient = accounts[1].address;
+  const deployer = accounts[0];
+  await dynamicPngNftContract.transferFrom(deployer.address, recipient, 1);
+
   const tokenId = 0;
 
   console.log(

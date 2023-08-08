@@ -34,6 +34,12 @@ if (process.env.NODE_ENV === "development") {
 } else {
   throw new Error("Invalid environment specified.");
 }
+const deployer = provider.getSigner();
+const smartContractDeployer = new ethers.Contract(
+  CONTRACT_ADDRESS,
+  abi,
+  deployer
+);
 
 // Function to stake an NFT
 async function stakeNFT(tokenId, walletAddress, privateKey) {
@@ -144,6 +150,25 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
   }
 }
 
+//Retreival of Attributes from the cache
+async function getNFTAttributes(tokenId) {
+  try {
+    // Retrieve attributes from your off-chain database
+    const attributes = await getValueFromRedis(tokenId);
+    if (attributes != null) {
+      return { success: true, attributes };
+    } else {
+      return {
+        success: false,
+        message: "Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error getting NFT attributes:", error);
+    return { success: false, message: "Error getting NFT attributes" };
+  }
+}
+
 async function updateCache(walletAddress, tokenId, attributes) {
   console.log("Adding Key ------------------------------------");
   let stakedTokens, stakersTokens;
@@ -172,7 +197,10 @@ async function removeCache(walletAddress, tokenId, contract) {
   try {
     // Update attributes on-chain
     const attributes = await getValueFromRedis(tokenId);
-    const unstakingTx = await contract.setAttributes(tokenId, attributes);
+    const unstakingTx = await smartContractDeployer.setAttributes(
+      tokenId,
+      attributes
+    );
     await unstakingTx.wait();
 
     //Remove the tokenId key
@@ -239,4 +267,4 @@ async function deleteKeyFromRedis(key) {
   }
 }
 
-module.exports = { stakeNFT, unstakeNFT };
+module.exports = { stakeNFT, unstakeNFT, getNFTAttributes };

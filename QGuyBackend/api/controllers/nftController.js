@@ -150,7 +150,7 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
   }
 }
 
-//Retreival of Attributes from the cache
+//Retrieval of Attributes from the cache
 async function getNFTAttributes(tokenId) {
   try {
     // Retrieve attributes from your off-chain database
@@ -166,6 +166,29 @@ async function getNFTAttributes(tokenId) {
   } catch (error) {
     console.error("Error getting NFT attributes:", error);
     return { success: false, message: "Error getting NFT attributes" };
+  }
+}
+
+//Retrieval of the tokenIds owned by the given smartContract
+async function getNewTokenIdForWallet(walletAddress) {
+  try {
+    // Call the smart contract's balanceOf
+    const balance = await smartContractDeployer.balanceOf(walletAddress);
+
+    // Retrieve tokenIds owned by the wallet using tokenOfOwnerByIndex
+    const tokenIds = [];
+    for (let index = 0; index < balance; index++) {
+      const tokenId = await smartContractDeployer.tokenOfOwnerByIndex(
+        walletAddress,
+        index
+      );
+      tokenIds.push(tokenId);
+    }
+
+    return tokenIds;
+  } catch (error) {
+    console.error("Error getting tokenIds for wallet:", error);
+    return [];
   }
 }
 
@@ -267,4 +290,9 @@ async function deleteKeyFromRedis(key) {
   }
 }
 
-module.exports = { stakeNFT, unstakeNFT, getNFTAttributes };
+module.exports = {
+  stakeNFT,
+  unstakeNFT,
+  getNFTAttributes,
+  getNewTokenIdForWallet,
+};

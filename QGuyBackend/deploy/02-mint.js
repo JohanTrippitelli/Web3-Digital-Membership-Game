@@ -63,7 +63,7 @@ module.exports = async function ({ getNamedAccounts }) {
 
   // Transfer NFT to another address
   const accounts = await ethers.getSigners();
-  const recipient = accounts[1].address;
+  const recipient = accounts[0].address;
   const deployer = accounts[0];
   await dynamicPngNftContract.transferFrom(deployer.address, recipient, 1);
 

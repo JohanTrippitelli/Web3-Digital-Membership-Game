@@ -5,6 +5,7 @@ const {
   stakeNFT,
   unstakeNFT,
   getNFTAttributes,
+  getNewTokenIdForWallet,
 } = require("../controllers/nftController");
 
 // Route to stake an NFT
@@ -26,6 +27,13 @@ router.get("/:tokenId/attributes", async (req, res) => {
   const { tokenId } = req.params;
   const attributes = await getNFTAttributes(tokenId);
   res.json(attributes);
+});
+
+// Route to get tokenIds owned by a user based on the smart contract
+router.get("/:walletAddress/tokenIds", async (req, res) => {
+  const { walletAddress } = req.params;
+  const tokenIds = await getNewTokenIdForWallet(walletAddress);
+  res.json({ tokenIds }); // Wrap the tokenIds in an object for consistent JSON response
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const { network, ethers } = require("hardhat");
 const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
+const { addTransactionSupport } = require("ioredis/built/transaction");
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -192,6 +193,60 @@ async function getNewTokenIdForWallet(walletAddress) {
   }
 }
 
+async function upgradeAttributes(tokenId) {
+  try {
+    // Retrieve attributes from your off-chain database
+    const attributes = await getValueFromRedis(tokenId);
+    if (attributes != null) {
+      // Convert the attributes string into a JSON object
+      const jsonObject = JSON.parse(attributes);
+      // Extract the value from the JSON object
+      // Find the object with "trait_type" of "Rank"
+      const cardTrait = jsonObject.find((obj) => obj.trait_type === "Rank");
+      const cardValue = cardTrait.value;
+      // Upgrade accordingly
+      if (cardValue == "2") {
+        cardTrait.value = "3";
+      } else if (cardValue == "3") {
+        cardTrait.value = "4";
+      } else if (cardValue == "4") {
+        cardTrait.value = "5";
+      } else if (cardValue == "5") {
+        cardTrait.value = "6";
+      } else if (cardValue == "6") {
+        cardTrait.value = "7";
+      } else if (cardValue == "7") {
+        cardTrait.value = "8";
+      } else if (cardValue == "8") {
+        cardTrait.value = "9";
+      } else if (cardValue == "9") {
+        cardTrait.value = "10";
+      } else if (cardValue == "10") {
+        cardTrait.value = "J";
+      } else if (cardValue == "J") {
+        cardTrait.value = "Q";
+      } else if (cardValue == "Q") {
+        cardTrait.value = "K";
+      } else if (cardValue == "K") {
+        cardTrait.value = "A";
+      }
+      // Turn the new result back into a string
+      const updatedAttributes = JSON.stringify(jsonObject);
+      // Set the key value pair in the cache
+      await setValueInRedis(tokenId, updatedAttributes);
+      return { success: true, updatedAttributes };
+    } else {
+      return {
+        success: false,
+        message: "Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error upgrading the NFT attributes:", error);
+    return { success: false, message: "Error upgrading the NFT attributes" };
+  }
+}
+
 async function updateCache(walletAddress, tokenId, attributes) {
   console.log("Adding Key ------------------------------------");
   let stakedTokens, stakersTokens;
@@ -295,4 +350,5 @@ module.exports = {
   unstakeNFT,
   getNFTAttributes,
   getNewTokenIdForWallet,
+  upgradeAttributes,
 };

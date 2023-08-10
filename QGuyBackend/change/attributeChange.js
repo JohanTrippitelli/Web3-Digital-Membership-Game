@@ -65,13 +65,13 @@ async function updateNFTAttributes() {
   } else if (cardValue == "9") {
     cardTrait.value = "10";
   } else if (cardValue == "10") {
-    cardTrait.value = "Jack";
-  } else if (cardValue == "Jack") {
-    cardTrait.value = "Queen";
-  } else if (cardValue == "Queen") {
-    cardTrait.value = "King";
-  } else if (cardValue == "King") {
-    cardTrait.value = "Ace";
+    cardTrait.value = "J";
+  } else if (cardValue == "J") {
+    cardTrait.value = "Q";
+  } else if (cardValue == "Q") {
+    cardTrait.value = "K";
+  } else if (cardValue == "K") {
+    cardTrait.value = "A";
   }
 
   const newAttributes = jsonObject.attributes;

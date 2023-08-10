@@ -5,9 +5,9 @@ const { storeImages } = require("../utils/uploadToPinata");
 const fit =
   '[{"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
 const attributes =
-  '[{"trait_type": "Rank", "value": "King"},{"trait_type": "suit", "value": "diamonds"}]';
+  '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "D"}]';
 const attributes2 =
-  '[{"trait_type": "Rank", "value": "Queen"},{"trait_type": "suit", "value": "spades"}]';
+  '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "S"}]';
 
 //Specify the image pathways
 const imagesLocation = "./images/dynamicTesting";

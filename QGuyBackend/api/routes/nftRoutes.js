@@ -7,6 +7,7 @@ const {
   getNFTAttributes,
   getNewTokenIdForWallet,
   upgradeAttributes,
+  switchSuit,
 } = require("../controllers/nftController");
 
 // Route to stake an NFT
@@ -55,6 +56,29 @@ router.patch("/:tokenId/upgrade", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Internal server error while upgrading attributes",
+    });
+  }
+});
+
+// Route to upgrade attributes of a specific token
+router.patch("/:tokenId/switch", async (req, res) => {
+  const { tokenId } = req.params;
+  const { newSuit } = req.body;
+
+  try {
+    // Perform the attribute upgrade logic using the provided tokenId
+    const swithcResult = await switchSuit(tokenId, newSuit);
+
+    if (swithcResult.success) {
+      res.json(swithcResult);
+    } else {
+      res.status(400).json(swithcResult); // Return an error response
+    }
+  } catch (error) {
+    console.error("Error switching suits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while swithcing suits",
     });
   }
 });

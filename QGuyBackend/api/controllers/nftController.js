@@ -247,6 +247,34 @@ async function upgradeAttributes(tokenId) {
   }
 }
 
+// Function to change the suit of the card
+async function switchSuit(tokenId, newSuit) {
+  try {
+    // Retrieve attributes from your off-chain database
+    const attributes = await getValueFromRedis(tokenId, newSuit);
+    if (attributes != null) {
+      // Convert the attributes string into a JSON object
+      const jsonObject = JSON.parse(attributes);
+      // Find the object with "trait_type" of "suit"
+      const cardTrait = jsonObject.find((obj) => obj.trait_type === "suit");
+      cardTrait.value = newSuit;
+      // Turn the new result back into a string
+      const updatedJson = JSON.stringify(jsonObject);
+      // Set the key value pair in the cache
+      await setValueInRedis(tokenId, updatedJson);
+      return { success: true, updatedJson };
+    } else {
+      return {
+        success: false,
+        message: "Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error changing the NFT suit:", error);
+    return { success: false, message: "Error changing the NFT suit" };
+  }
+}
+
 async function updateCache(walletAddress, tokenId, attributes) {
   console.log("Adding Key ------------------------------------");
   let stakedTokens, stakersTokens;
@@ -351,4 +379,5 @@ module.exports = {
   getNFTAttributes,
   getNewTokenIdForWallet,
   upgradeAttributes,
+  switchSuit,
 };

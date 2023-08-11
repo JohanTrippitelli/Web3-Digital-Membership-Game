@@ -1,6 +1,7 @@
 const { network, ethers } = require("hardhat");
 const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
+const { storeImages } = require("../../utils/uploadToPinata");
 const { addTransactionSupport } = require("ioredis/built/transaction");
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -21,6 +22,21 @@ async function Connect() {
   await redisClient.connect();
 }
 
+// Set up image array
+let imageMapping = []; // Array of new image URLs or IPFS hashes
+const imagesLocation = "./images/dynamicTesting";
+imageMap();
+
+async function imageMap() {
+  if (process.env.UPLOAD_TO_PINATA == "true") {
+    imageMapping = await storeImages(imagesLocation);
+
+    console.log("Image URIs uploaded to Mapping. They have keys:");
+    console.log(Object.keys(imageMapping));
+  }
+}
+
+// Set up provider and signer
 if (process.env.NODE_ENV === "development") {
   // Use localhost provider for development
   provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");

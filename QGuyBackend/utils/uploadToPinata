@@ -10,37 +10,35 @@ const pinata = new pinataSDK(pinataApiKey, pinataApiSecret);
 async function storeImages(imagesFilePath) {
   const fullImagesPath = path.resolve(imagesFilePath);
 
-  // Filter the files in case the are a file that in not a .png
+  // Filter the files in case they are files that are not .png
   const files = fs
     .readdirSync(fullImagesPath)
     .filter((file) => file.includes(".png"));
 
-  let responses = [];
+  const imageMapping = {}; // Mapping to store image URLs by name
+
   console.log("Uploading to IPFS");
 
   for (const fileIndex in files) {
+    const fileName = files[fileIndex];
+    const imageName = fileName.replace(".png", ""); // Remove the .png extension
     const readableStreamForFile = fs.createReadStream(
-      `${fullImagesPath}/${files[fileIndex]}`
+      `${fullImagesPath}/${fileName}`
     );
     const options = {
       pinataMetadata: {
-        name: files[fileIndex],
+        name: fileName,
       },
     };
     try {
-      await pinata
-        .pinFileToIPFS(readableStreamForFile, options)
-        .then((result) => {
-          responses.push(result);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      const result = await pinata.pinFileToIPFS(readableStreamForFile, options);
+      const imageUrl = `ipfs://${result.IpfsHash}`;
+      imageMapping[imageName] = imageUrl; // Store the image URL in the mapping
     } catch (error) {
       console.log(error);
     }
   }
-  return { responses, files };
+  return imageMapping; // Return the mapping
 }
 
 module.exports = { storeImages };

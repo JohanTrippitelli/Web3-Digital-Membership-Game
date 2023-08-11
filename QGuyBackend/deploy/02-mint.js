@@ -11,23 +11,19 @@ const attributes2 =
 
 //Specify the image pathways
 const imagesLocation = "./images/dynamicTesting";
-let imageUris = [];
+let imageMapping;
 
 module.exports = async function ({ getNamedAccounts }) {
   //set the base image array
   if (process.env.UPLOAD_TO_PINATA == "true") {
-    const { responses: imageUploadResponses, files } = await storeImages(
-      imagesLocation
-    );
-    for (imageIndex in imageUploadResponses) {
-      imageUris.push(`ipfs://${imageUploadResponses[imageIndex].IpfsHash}`);
-    }
-    console.log("Image URIs uploaded. They are:");
-    console.log(imageUris);
+    imageMapping = await storeImages(imagesLocation);
+
+    console.log("Image URIs uploaded to Mapping. They have keys:");
+    console.log(Object.keys(imageMapping));
   }
 
   //Take the initial image as the deployed image
-  PNG = imageUris[2];
+  PNG = imageMapping["AH"];
 
   // Retrieve the deployed contract
   const dynamicPngNft = await deployments.get("DynamicPngNft");

@@ -5,7 +5,7 @@ const { storeImages } = require("../utils/uploadToPinata");
 const fit =
   '[{"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
 const attributes =
-  '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "D"}]';
+  '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}]';
 const attributes2 =
   '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "S"}]';
 
@@ -23,7 +23,7 @@ module.exports = async function ({ getNamedAccounts }) {
   }
 
   //Take the initial image as the deployed image
-  PNG = imageMapping["AH"];
+  PNG = imageMapping["KH"];
 
   // Retrieve the deployed contract
   const dynamicPngNft = await deployments.get("DynamicPngNft");

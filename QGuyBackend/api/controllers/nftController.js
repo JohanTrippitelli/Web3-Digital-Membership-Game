@@ -23,7 +23,7 @@ async function Connect() {
 }
 
 // Set up image array
-let imageMapping = []; // Array of new image URLs or IPFS hashes
+let imageMapping; // Array of new image URLs or IPFS hashes
 const imagesLocation = "./images/dynamicTesting";
 imageMap();
 
@@ -325,6 +325,20 @@ async function removeCache(walletAddress, tokenId, contract) {
     );
     await unstakingTx.wait();
 
+    // Convert the attributes string into a JSON object
+    const jsonObject = JSON.parse(attributes);
+    // Find the object with "trait_type" of "Rank"
+    const rank = jsonObject.find((obj) => obj.trait_type === "Rank");
+    const rankValue = rank.value;
+    const suit = jsonObject.find((obj) => obj.trait_type === "suit");
+    const suitValue = suit.value;
+    const name = rankValue + suitValue;
+
+    console.log("Pre Change", await smartContractDeployer.tokenURI(tokenId));
+
+    smartContractDeployer.setImage(tokenId, imageMapping[name]);
+
+    console.log("Post Change", await smartContractDeployer.tokenURI(tokenId));
     //Remove the tokenId key
     await deleteKeyFromRedis(tokenId);
     // Remove the token ID from the list of the walletAdress

@@ -1,14 +1,10 @@
-// Import the caching library
-const NodeCache = require("node-cache");
-//Other Imports
+// Imports
 const { ethers } = require("ethers");
 const contract = require("../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
 
 const contractAddress = process.env.CONTRACT_ADDRESS; //Deployed contract address
 const contractABI = contract.abi;
 const API_KEY = process.env.API_KEY;
-// Create a new instance of the cache
-const cache = new NodeCache();
 
 async function startEventCapture() {
   // Set up Ethereum provider (e.g., Hardhat provider or ethers.providers.JsonRpcProvider)
@@ -18,7 +14,7 @@ async function startEventCapture() {
     provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
   } else if (process.env.NODE_ENV === "testnet") {
     // Use Goerli testnet provider and signer for production
-    const provider = new ethers.providers.AlchemyProvider(
+    provider = new ethers.providers.AlchemyProvider(
       (network = "goerli"),
       API_KEY
     );
@@ -28,12 +24,16 @@ async function startEventCapture() {
   console.log("---------------------------------------");
 
   // Connect to the contract using the ABI and contract address
-  const contract = new ethers.Contract(contractAddress, contractABI, provider);
+  const smartContract = new ethers.Contract(
+    contractAddress,
+    contractABI,
+    provider
+  );
 
   console.log("Listening for an Event");
 
   // Listen for NFTStaked events
-  contract.on("NFTStaked", async (staker, tokenId, event) => {
+  smartContract.on("NFTStaked", async (staker, tokenId, event) => {
     //log
     console.log(
       `NFTStaked event captured. Staker: ${staker}, TokenId: ${tokenId}`
@@ -41,7 +41,7 @@ async function startEventCapture() {
   });
 
   // Listen for NFTUnstaked events
-  contract.on("NFTUnstaked", (unstaker, tokenId, event) => {
+  smartContract.on("NFTUnstaked", (unstaker, tokenId, event) => {
     console.log(
       `NFTUnstaked event captured. Unstaker: ${unstaker}, TokenId: ${tokenId}`
     );

@@ -7,6 +7,7 @@ const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const abi = contract.abi;
+let deployer;
 
 //Set up RedisClient Server
 let redisClient = createClient();
@@ -40,18 +41,18 @@ async function imageMap() {
 if (process.env.NODE_ENV === "development") {
   // Use localhost provider for development
   provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  deployer = provider.getSigner();
 } else if (process.env.NODE_ENV === "testnet") {
   // Use Goerli testnet provider for production
-  const alchemyProvider = new ethers.providers.AlchemyProvider(
-    (network = "goerli"),
+  provider = new ethers.providers.AlchemyProvider(
+    "goerli", // Provide the network value directly
     API_KEY
   );
   // Connect the signer to a wallet using the private key or mnemonic phrase of the account
-  provider = new ethers.Wallet(PRIVATE_KEY, alchemyProvider);
+  deployer = new ethers.Wallet(PRIVATE_KEY, provider);
 } else {
   throw new Error("Invalid environment specified.");
 }
-const deployer = provider.getSigner();
 const smartContractDeployer = new ethers.Contract(
   CONTRACT_ADDRESS,
   abi,
@@ -83,7 +84,7 @@ async function stakeNFT(tokenId, walletAddress, privateKey) {
       `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} before staking`
     );
 
-    //Extract on chain attributes and update cache
+    //Extract on chain attributes and fit to update cache
     const attributes = await smartContract.getAttributes(tokenId);
     await updateCache(walletAddress, tokenId, attributes);
 
@@ -137,7 +138,7 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
       printStakedTokens = stakedTokens;
     }
     console.log(
-      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} before staking`
+      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} before unstaking`
     );
 
     // Remove the attributes for the tokenId from the in-memory cache
@@ -155,7 +156,7 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
       await getValueFromRedis(tokenId)
     );
     console.log(
-      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} after staking`
+      `Wallet at address ${walletAddress} currently owns token ${printStakedTokens} after unstaking`
     );
 
     // return success if successful
@@ -334,11 +335,9 @@ async function removeCache(walletAddress, tokenId, contract) {
     const suitValue = suit.value;
     const name = rankValue + suitValue;
 
-    console.log("Pre Change", await smartContractDeployer.tokenURI(tokenId));
-
+    // Change the on chain image
     smartContractDeployer.setImage(tokenId, imageMapping[name]);
 
-    console.log("Post Change", await smartContractDeployer.tokenURI(tokenId));
     //Remove the tokenId key
     await deleteKeyFromRedis(tokenId);
     // Remove the token ID from the list of the walletAdress

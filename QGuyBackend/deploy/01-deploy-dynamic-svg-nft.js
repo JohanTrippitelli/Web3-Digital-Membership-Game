@@ -5,6 +5,7 @@ const { verify } = require("../utils/verify");
 const mintFee = ethers.utils.parseEther("0.01"); // Set the mint fee to 0.01 ETH
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
+  const PRIVATE_KEY = process.env.PRIVATE_KEY;
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
 

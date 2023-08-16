@@ -16,7 +16,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
     mapping(uint256 => int256) private s_tokenIdToMembershipStatus;
     mapping(uint256 => string) private s_tokenIdToImageURL;
     mapping(uint256 => string) private s_tokenIdToAttributes;
-    mapping(uint256 => string) private s_tokenIdToFit;
     mapping(uint256 => bool) private s_tokenIdToStaked;
 
     //Event Definition
@@ -33,7 +32,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         int256 membership_status,
         string memory imageURL,
         string memory attributes,
-        string memory fit,
         bool isQR
     ) public payable {
         require(msg.value >= s_mintFee, "More ETH required");
@@ -46,8 +44,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         s_tokenIdToImageURL[s_tokenCounter] = imageURL;
         //attributes
         s_tokenIdToAttributes[s_tokenCounter] = attributes;
-        //fit
-        s_tokenIdToFit[s_tokenCounter] = fit;
         //Mint the NFT now, increment the token counter, and emit the created event
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
@@ -70,7 +66,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         //Set the necessary variables from the state variable mappings
         string memory imageURL = s_tokenIdToImageURL[tokenId];
         string memory attributes = s_tokenIdToAttributes[tokenId];
-        string memory fit = s_tokenIdToFit[tokenId];
         // Retrieve the staking status of the NFT
         bool staked = s_tokenIdToStaked[tokenId];
 
@@ -87,8 +82,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
                                 '", "description":"Q", ',
                                 '"attributes":',
                                 attributes,
-                                ',"fit":',
-                                fit,
                                 ',"image":"',
                                 imageURL,
                                 '","staked":"',
@@ -151,14 +144,6 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
 
     function getImage(uint256 tokenId) public view returns (string memory) {
         return s_tokenIdToImageURL[tokenId];
-    }
-
-    function getFit(uint256 tokenId) public view returns (string memory) {
-        return s_tokenIdToFit[tokenId];
-    }
-
-    function setFit(uint256 tokenId, string memory fit) public onlyOwner {
-        s_tokenIdToFit[tokenId] = fit;
     }
 
     function setAttributes(

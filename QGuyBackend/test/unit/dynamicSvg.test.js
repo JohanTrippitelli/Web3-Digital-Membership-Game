@@ -5,12 +5,12 @@ const { getTimeLeft, getTimeRaw, startTimer } = require("../../timer/timer.js");
 
 const mintFee = ethers.utils.parseEther("0.01"); // Set the mint fee to 0.01 ETH
 const originalImageURL =
-  "ipfs://QmdBtZa6dD21P3NzeXhsCeVfGF9wSbGNvq3iGEH9YY3BdB";
-const alteredImageURL = "ipfs://QmbXU2B4Rh2LGrD3scLQ9VLgRtSD9pNA8BiprpJ8yrmBPv";
+  "ipfs://QmNh1yszuGh7VTfwiLvd2gRB3JSt7iHfQHf5aRKeuvS47L";
+const alteredImageURL = "ipfs://QmVWUXufJCzjjsPtKBSRczCYKpDDdV29VpADPYjt54NSBy";
 const originalURI =
-  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiS2luZyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogImRpYW1vbmRzIn1dLCJmaXQiOlt7InRyYWl0X3R5cGUiOiAiaGVhZCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogIm91dGVyX2NoZXN0IiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAiaW5uZXJfY2hlc3QiLCAidmFsdWUiOiAibnVkZSJ9LHsidHJhaXRfdHlwZSI6ICJsZWdzIiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAiZmVldCIsICJ2YWx1ZSI6ICJub25lIn1dLCJpbWFnZSI6ImlwZnM6Ly9RbWRCdFphNmREMjFQM056ZVhoc0NlVmZHRjl3U2JHTnZxM2lHRUg5WVkzQmRCIiwic3Rha2VkIjoiZmFsc2UifQ==";
+  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiSyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm51ZGUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1OaDF5c3p1R2g3VlRmd2lMdmQyZ1JCM0pTdDdpSGZRSGY1YVJLZXV2UzQ3TCIsInN0YWtlZCI6ImZhbHNlIn0=";
 const alteredURI =
-  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiS2luZyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogImRpYW1vbmRzIn1dLCJmaXQiOlt7InRyYWl0X3R5cGUiOiAiaGVhZCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogIm91dGVyX2NoZXN0IiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAiaW5uZXJfY2hlc3QiLCAidmFsdWUiOiAibnVkZSJ9LHsidHJhaXRfdHlwZSI6ICJsZWdzIiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAiZmVldCIsICJ2YWx1ZSI6ICJub25lIn1dLCJpbWFnZSI6ImlwZnM6Ly9RbWJYVTJCNFJoMkxHckQzc2NMUTlWTGdSdFNEOXBOQThCaXBycEo4eXJtQlB2Iiwic3Rha2VkIjoiZmFsc2UifQ==";
+  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiSyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm51ZGUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1WV1VYdWZKQ3pqanNQdEtCU1JjekNZS3BERGRWMjlWcEFEUFlqdDU0TlNCeSIsInN0YWtlZCI6ImZhbHNlIn0=";
 !developmentChains.includes(network.name)
   ? describe.skip
   : describe("Dynamic PNG NFT Unit Tests", function () {
@@ -22,10 +22,8 @@ const alteredURI =
         await deployments.fixture(["mocks", "dynamicpng"]);
         dynamicPngNft = await ethers.getContract("DynamicPngNft");
         initial_status = 1;
-        initial_fit =
-          '[{"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
         initial_attributes =
-          '[{"trait_type": "Rank", "value": "King"},{"trait_type": "suit", "value": "diamonds"}]';
+          '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
       });
 
       describe("mintNft", () => {
@@ -36,7 +34,6 @@ const alteredURI =
               status,
               originalImageURL,
               initial_attributes,
-              initial_fit,
               false,
               { value: mintFee } // Pass the mint fee as the value field in the transaction
             )
@@ -54,7 +51,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -73,7 +69,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -95,22 +90,16 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
-          const fit =
-            '"fit": [{"trait_type": "head", "value": "hat"}, {"trait_type": "outer_chest", "value": "none"}, {"trait_type": "inner_chest", "none": "nude"}, {"trait_type": "legs", "value": "none"}, {"trait_type": "feet", "value": "none"},],';
           const attributes =
-            '"attributes": [{"trait_type": "Rank", "value": "3"}, {"trait_type": "suit", "value": "diamonds"},';
+            '"attributes": [{"trait_type": "Rank", "value": "3"}, {"trait_type": "suit", "value": "diamonds"},{"trait_type": "head", "value": "hat"}, {"trait_type": "outer_chest", "value": "none"}, {"trait_type": "inner_chest", "none": "nude"}, {"trait_type": "legs", "value": "none"}, {"trait_type": "feet", "value": "none"}]';
 
-          await dynamicPngNft.setFit(0, fit);
           await dynamicPngNft.setAttributes(0, attributes);
 
-          const Fit = await dynamicPngNft.getFit(0);
           const Att = await dynamicPngNft.getAttributes(0);
 
-          assert.equal(fit, Fit);
           assert.equal(Att, attributes);
 
           const uri = dynamicPngNft.tokenURI(0);
@@ -122,7 +111,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -140,16 +128,16 @@ const alteredURI =
           var jsonObject = JSON.parse(decodedData);
 
           // Now you can access the properties of the JSON object
-          const headTrait = jsonObject.fit.find(
+          const headTrait = jsonObject.attributes.find(
             (trait) => trait.trait_type === "head"
           );
           const headValue = headTrait.value;
           assert.equal(headValue.toString(), "none");
 
           //Set the value of head to hat
-          const newFit =
-            '[{"trait_type": "head", "value": "hat"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
-          await dynamicPngNft.setFit(0, newFit);
+          const newAttributes =
+            '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "hat"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
+          await dynamicPngNft.setAttributes(0, newAttributes);
 
           const new_tokenuri = await dynamicPngNft.tokenURI(0);
           // Extract the Base64 portion of the tokenURI
@@ -164,7 +152,7 @@ const alteredURI =
           var new_jsonObject = JSON.parse(new_decodedData);
 
           // Now you can access the properties of the JSON object
-          const new_headTrait = new_jsonObject.fit.find(
+          const new_headTrait = new_jsonObject.attributes.find(
             (trait) => trait.trait_type === "head"
           );
           const new_headValue = new_headTrait.value;
@@ -181,7 +169,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -190,7 +177,7 @@ const alteredURI =
 
           // Non-owner (accounts[1]) should not be able to set fit
           await expect(
-            dynamicPngNft.connect(accounts[1]).setFit(tokenId, "newFit")
+            dynamicPngNft.connect(accounts[1]).setAttributes(tokenId, "newFit")
           ).to.be.reverted;
         });
 
@@ -200,18 +187,19 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
           const tokenId = 0;
 
           // Owner should be able to set fit
-          await dynamicPngNft.connect(accounts[0]).setFit(tokenId, "newFit");
+          await dynamicPngNft
+            .connect(accounts[0])
+            .setAttributes(tokenId, "newFit");
 
           // Verify that the fit was set correctly
-          const updatedFit = await dynamicPngNft.getFit(tokenId);
-          assert.equal(updatedFit, "newFit");
+          const updatedAttributes = await dynamicPngNft.getAttributes(tokenId);
+          assert.equal(updatedAttributes, "newFit");
         });
 
         it("transfers the NFT to another address and updates ownership", async function () {
@@ -221,7 +209,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -241,7 +228,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -259,7 +245,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -297,7 +282,6 @@ const alteredURI =
               status,
               originalImageURL,
               initial_attributes,
-              initial_fit,
               false,
               { value: mintFee } // Pass the mint fee as the value field in the transaction
             );
@@ -341,7 +325,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -363,7 +346,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -385,7 +367,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
@@ -414,7 +395,6 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            initial_fit,
             false,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );

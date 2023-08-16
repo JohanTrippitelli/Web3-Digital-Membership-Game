@@ -268,7 +268,7 @@ async function upgradeAttributes(tokenId) {
 async function switchSuit(tokenId, newSuit) {
   try {
     // Retrieve attributes from your off-chain database
-    const attributes = await getValueFromRedis(tokenId, newSuit);
+    const attributes = await getValueFromRedis(tokenId);
     if (attributes != null) {
       // Convert the attributes string into a JSON object
       const jsonObject = JSON.parse(attributes);
@@ -289,6 +289,32 @@ async function switchSuit(tokenId, newSuit) {
   } catch (error) {
     console.error("Error changing the NFT suit:", error);
     return { success: false, message: "Error changing the NFT suit" };
+  }
+}
+
+async function switchFit(tokenId, bodyPart, newFit) {
+  try {
+    const attributes = await getValueFromRedis(tokenId);
+    if (attributes != null) {
+      // Convert the attributes string into a JSON object
+      const jsonObject = JSON.parse(attributes);
+      // Find the object with "trait_type" of bodyPart
+      const cardTrait = jsonObject.find((obj) => obj.trait_type === bodyPart);
+      cardTrait.value = newFit;
+      // Turn the new result back into a string
+      const updatedJson = JSON.stringify(jsonObject);
+      // Set the key value pair in the cache
+      await setValueInRedis(tokenId, updatedJson);
+      return { success: true, updatedJson };
+    } else {
+      return {
+        success: false,
+        message: "Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error changing the NFT Fit:", error);
+    return { success: false, message: "Error changing the NFT Fit" };
   }
 }
 
@@ -409,4 +435,5 @@ module.exports = {
   getNewTokenIdForWallet,
   upgradeAttributes,
   switchSuit,
+  switchFit,
 };

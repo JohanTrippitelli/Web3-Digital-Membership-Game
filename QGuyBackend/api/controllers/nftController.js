@@ -187,6 +187,25 @@ async function getNFTAttributes(tokenId) {
   }
 }
 
+//Retrieval of Backup Attributes from the cache
+async function getNFTAttributesBackup(tokenId) {
+  try {
+    // Retrieve attributes from your off-chain database
+    const attributes = await getValueFromRedis(tokenId + "Backup");
+    if (attributes != null) {
+      return { success: true, attributes };
+    } else {
+      return {
+        success: false,
+        message: "Backup Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error getting Backup NFT attributes:", error);
+    return { success: false, message: "Error getting Backup NFT attributes" };
+  }
+}
+
 //Retrieval of the tokenIds owned by the given smartContract
 async function getNewTokenIdForWallet(walletAddress) {
   try {
@@ -247,10 +266,23 @@ async function upgradeAttributes(tokenId) {
       } else if (cardValue == "K") {
         cardTrait.value = "A";
       }
+      // Change the backup
+      const tokenBackup = tokenId + "Backup";
+      const attributesBackup = getValueFromRedis(tokenBackup);
+      // Convert the backup attributes string into a JSON object
+      const jsonObjectBackup = JSON.parse(attributesBackup);
+      // Find the object with "trait_type" of "Rank"
+      const cardTraitBackup = jsonObjectBackup.find(
+        (obj) => obj.trait_type === "Rank"
+      );
+      cardTraitBackup.value = cardTrait.value;
+
       // Turn the new result back into a string
       const updatedAttributes = JSON.stringify(jsonObject);
+      const updatedAttributesbackup = JSON.stringify(jsonObjectBackup);
       // Set the key value pair in the cache
       await setValueInRedis(tokenId, updatedAttributes);
+      await setValueInRedis(tokenBackup, updatedAttributesbackup);
       return { success: true, updatedAttributes };
     } else {
       return {
@@ -275,10 +307,24 @@ async function switchSuit(tokenId, newSuit) {
       // Find the object with "trait_type" of "suit"
       const cardTrait = jsonObject.find((obj) => obj.trait_type === "suit");
       cardTrait.value = newSuit;
+
+      // Extract and alter the backup suit
+      const tokenBackup = tokenId + "Backup";
+      const attributesBackup = getValueFromRedis(tokenBackup);
+      // Convert the backup attributes string into a JSON object
+      const jsonObjectBackup = JSON.parse(attributesBackup);
+      // Find the object with "trait_type" of "suit"
+      const cardTraitBackup = jsonObjectBackup.find(
+        (obj) => obj.trait_type === "suit"
+      );
+      cardTraitBackup.value = cardTrait.value;
+
       // Turn the new result back into a string
       const updatedJson = JSON.stringify(jsonObject);
+      const updatedJsonBackup = JSON.stringify(jsonObjectBackup);
       // Set the key value pair in the cache
       await setValueInRedis(tokenId, updatedJson);
+      await setValueInRedis(tokenBackup, updatedJsonBackup);
       return { success: true, updatedJson };
     } else {
       return {
@@ -292,7 +338,7 @@ async function switchSuit(tokenId, newSuit) {
   }
 }
 
-async function switchFit(tokenId, bodyPart, newFit) {
+async function setFit(tokenId, bodyPart, newFit) {
   try {
     const attributes = await getValueFromRedis(tokenId);
     if (attributes != null) {
@@ -318,11 +364,74 @@ async function switchFit(tokenId, bodyPart, newFit) {
   }
 }
 
+async function setFitBackup(tokenId, bodyPart, newFit) {
+  try {
+    const tokenBackup = tokenId + "Backup";
+    const attributes = await getValueFromRedis(tokenBackup);
+    if (attributes != null) {
+      // Convert the attributes string into a JSON object
+      const jsonObject = JSON.parse(attributes);
+      // Find the object with "trait_type" of bodyPart
+      const cardTrait = jsonObject.find((obj) => obj.trait_type === bodyPart);
+      cardTrait.value = newFit;
+      // Turn the new result back into a string
+      const updatedJson = JSON.stringify(jsonObject);
+      // Set the key value pair in the cache
+      await setValueInRedis(tokenBackup, updatedJson);
+      return { success: true, updatedJson };
+    } else {
+      return {
+        success: false,
+        message: "Attributes not found for the given tokenId",
+      };
+    }
+  } catch (error) {
+    console.error("Error changing the NFT Fit:", error);
+    return { success: false, message: "Error changing the NFT Fit" };
+  }
+}
+
+async function switchFits(tokenId) {
+  try {
+    // Extract fit and backup
+    const tokenBackup = tokenId + "Backup";
+    const fit = await getValueFromRedis(tokenId);
+    const backupFit = await getValueFromRedis(tokenBackup);
+    // Set fits swapped
+    await setValueInRedis(tokenId, backupFit);
+    await setValueInRedis(tokenBackup, fit);
+    return { success: true, message: "Fits were successfuly swapped" };
+  } catch (error) {
+    console.error("Error switching fits", error);
+    return { success: false, message: "Error switching fits" };
+  }
+}
+
 async function updateCache(walletAddress, tokenId, attributes) {
   console.log("Adding Key ------------------------------------");
   let stakedTokens, stakersTokens;
   // Update the tokenId -> attributes
   await setValueInRedis(tokenId, attributes);
+
+  // Set the tokenBackup -> attributes to empty
+  const tokenBackup = tokenId + "Backup";
+  // Extract the Rank and Suit from the attributes
+  const jsonObject = JSON.parse(attributes);
+  // Extract elements with "trait_type" values of "Rank" and "suit"
+  const RankSuitElements = jsonObject.filter(
+    (item) => item.trait_type === "Rank" || item.trait_type === "suit"
+  );
+  const additionalElements = [
+    { trait_type: "head", value: "none" },
+    { trait_type: "outer_chest", value: "none" },
+    { trait_type: "inner_chest", value: "none" },
+    { trait_type: "legs", value: "none" },
+    { trait_type: "feet", value: "none" },
+  ];
+  // Concatenate the arrays
+  const attributesBackup = RankSuitElements.concat(additionalElements);
+  const attributesBackupString = JSON.stringify(attributesBackup);
+  await setValueInRedis(tokenBackup, attributesBackupString);
   // Check to see if the walletAddress has any tokens associated with it
   stakedTokens = await getValueFromRedis(walletAddress);
   if (!stakedTokens) {
@@ -432,8 +541,11 @@ module.exports = {
   stakeNFT,
   unstakeNFT,
   getNFTAttributes,
+  getNFTAttributesBackup,
   getNewTokenIdForWallet,
   upgradeAttributes,
   switchSuit,
-  switchFit,
+  setFit,
+  setFitBackup,
+  switchFits,
 };

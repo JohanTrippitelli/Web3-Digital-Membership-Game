@@ -5,10 +5,13 @@ const {
   stakeNFT,
   unstakeNFT,
   getNFTAttributes,
+  getNFTAttributesBackup,
   getNewTokenIdForWallet,
   upgradeAttributes,
   switchSuit,
-  switchFit,
+  setFit,
+  setFitBackup,
+  switchFits,
 } = require("../controllers/nftController");
 
 // Route to stake an NFT
@@ -29,6 +32,13 @@ router.post("/unstake", async (req, res) => {
 router.get("/:tokenId/attributes", async (req, res) => {
   const { tokenId } = req.params;
   const attributes = await getNFTAttributes(tokenId);
+  res.json(attributes);
+});
+
+// Route to get Backup NFT attributes
+router.get("/:tokenId/attributesBackup", async (req, res) => {
+  const { tokenId } = req.params;
+  const attributes = await getNFTAttributesBackup(tokenId);
   res.json(attributes);
 });
 
@@ -85,13 +95,13 @@ router.patch("/:tokenId/switchSuit", async (req, res) => {
 });
 
 // Route to switch a Fit of a specific token
-router.patch("/:tokenId/switchFit", async (req, res) => {
+router.patch("/:tokenId/setFit", async (req, res) => {
   const { tokenId } = req.params;
   const { newFit, bodyPart } = req.body;
 
   try {
     // Perform the attribute upgrade logic using the provided tokenId
-    const swithcResult = await switchFit(tokenId, bodyPart, newFit);
+    const swithcResult = await setFit(tokenId, bodyPart, newFit);
 
     if (swithcResult.success) {
       res.json(swithcResult);
@@ -99,10 +109,54 @@ router.patch("/:tokenId/switchFit", async (req, res) => {
       res.status(400).json(swithcResult); // Return an error response
     }
   } catch (error) {
+    console.error("Error setting fits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while setting fits",
+    });
+  }
+});
+
+// Route to switch a Fit of a specific token
+router.patch("/:tokenId/setFitBackup", async (req, res) => {
+  const { tokenId } = req.params;
+  const { newFit, bodyPart } = req.body;
+
+  try {
+    // Perform the fit setting logic using the provided tokenId
+    const setResult = await setFitBackup(tokenId, bodyPart, newFit);
+
+    if (setResult.success) {
+      res.json(setResult);
+    } else {
+      res.status(400).json(setResult); // Return an error response
+    }
+  } catch (error) {
+    console.error("Error setting backup fits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while setting backup fits",
+    });
+  }
+});
+
+router.patch("/:tokenId/switch", async (req, res) => {
+  const { tokenId } = req.params;
+
+  try {
+    // Perform the switch logic using the provided tokenId
+    const switchResult = await switchFits(tokenId);
+
+    if (switchResult.success) {
+      res.json(switchResult);
+    } else {
+      res.status(400).json(switchResult); // Return an error response
+    }
+  } catch (error) {
     console.error("Error switching fits:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error while swithcing fits",
+      message: "Internal server error while switching fits",
     });
   }
 });

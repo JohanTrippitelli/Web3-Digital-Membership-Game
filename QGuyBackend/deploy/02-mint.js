@@ -3,7 +3,7 @@ const { storeImages } = require("../utils/uploadToPinata");
 
 //Specify the base metaData
 const attributes =
-  '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
+  '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
 
 //Specify the image pathways
 const imagesLocation = "./images/dynamicTesting";

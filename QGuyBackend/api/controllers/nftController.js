@@ -3,6 +3,7 @@ const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
 const { storeImages } = require("../../utils/uploadToPinata");
 const { addTransactionSupport } = require("ioredis/built/transaction");
+const { string } = require("hardhat/internal/core/params/argumentTypes");
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -23,24 +24,91 @@ async function Connect() {
   await redisClient.connect();
 }
 
-// Set up image array
-let imageMapping; // Array of new image URLs or IPFS hashes
+// Set up image mapping
+let imageMap; // Array of new image URLs or IPFS hashes
 const imagesLocation = "./images/dynamicTesting";
-imageMap();
+imageMapping();
 
-async function imageMap() {
+async function imageMapping() {
   if (process.env.UPLOAD_TO_PINATA == "true") {
-    imageMapping = await storeImages(imagesLocation);
+    imageMap = await storeImages(imagesLocation);
 
     console.log("Image URIs uploaded to Mapping. They have keys:");
-    console.log(Object.keys(imageMapping));
+    console.log(Object.keys(imageMap));
+  }
+}
+
+// Set up a mapping for the mint fee price based on the value of the card
+const mintFeeMap = {
+  2: "1",
+  3: "1",
+  4: "1",
+  5: "1",
+  6: "1",
+  7: "1",
+  8: "1",
+  9: "1",
+  10: "1",
+  J: "1.5",
+  Q: "2",
+  K: "2.5",
+  A: "3",
+};
+
+// Set up Attributes map start with a map with all the face value cards
+const attributesMap = {
+  JH: '[{"trait_type": "Rank", "value": "J"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  JS: '[{"trait_type": "Rank", "value": "J"},{"trait_type": "suit", "value": "S"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  JC: '[{"trait_type": "Rank", "value": "J"},{"trait_type": "suit", "value": "C"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  JD: '[{"trait_type": "Rank", "value": "J"},{"trait_type": "suit", "value": "D"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  QH: '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  QS: '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "S"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  QC: '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "C"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  QD: '[{"trait_type": "Rank", "value": "Q"},{"trait_type": "suit", "value": "D"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  KH: '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  KS: '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "S"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  KC: '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "C"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  KD: '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "D"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  AH: '[{"trait_type": "Rank", "value": "A"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  AS: '[{"trait_type": "Rank", "value": "A"},{"trait_type": "suit", "value": "S"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  AC: '[{"trait_type": "Rank", "value": "A"},{"trait_type": "suit", "value": "C"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+  AD: '[{"trait_type": "Rank", "value": "A"},{"trait_type": "suit", "value": "D"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]',
+};
+
+// Now using a for loop set all the values of the integer cards
+attributesMapping();
+async function attributesMapping() {
+  for (i = 2; i <= 10; i++) {
+    // Define each of the number/suit pairs for i
+    const hearts = i.toString() + "H";
+    const spades = i.toString() + "S";
+    const clubs = i.toString() + "C";
+    const diamonds = i.toString() + "D";
+
+    // Add these pairings to the mapping
+    attributesMap[
+      hearts
+    ] = `[{"trait_type": "Rank", "value": "${i.toString()}"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]`;
+    attributesMap[
+      spades
+    ] = `[{"trait_type": "Rank", "value": "${i.toString()}"},{"trait_type": "suit", "value": "S"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]`;
+    attributesMap[
+      clubs
+    ] = `[{"trait_type": "Rank", "value": "${i.toString()}"},{"trait_type": "suit", "value": "C"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]`;
+    attributesMap[
+      diamonds
+    ] = `[{"trait_type": "Rank", "value": "${i.toString()}"},{"trait_type": "suit", "value": "D"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]`;
   }
 }
 
 // Set up provider and signer
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === "localhost") {
   // Use localhost provider for development
   provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545");
+  deployer = provider.getSigner();
+} else if (process.env.NODE_ENV === "ganache") {
+  // Use localhost provider for development
+  provider = new ethers.providers.JsonRpcProvider("HTTP://127.0.0.1:7545");
   deployer = provider.getSigner();
 } else if (process.env.NODE_ENV === "testnet") {
   // Use Goerli testnet provider for production
@@ -58,6 +126,44 @@ const smartContractDeployer = new ethers.Contract(
   abi,
   deployer
 );
+
+//Mint function
+async function mintNFT(privateKey, name, eth) {
+  // Convert mintFee to Ether if needed
+  const value = name[0];
+  const mintFee = mintFeeMap[value];
+  const mintFeeInEther = ethers.utils.parseEther(mintFee);
+
+  const imageURL = imageMap[name];
+  const attributes = attributesMap[name];
+
+  // Create a new signer using the private key and the provider
+  const signer = new ethers.Wallet(privateKey, provider);
+  // Create a contract instance with the correct signer
+  const smartContract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+
+  try {
+    const mintTx = await smartContract.mintNft(
+      1,
+      imageURL,
+      attributes,
+      mintFeeInEther,
+      {
+        value: ethers.utils.parseEther(eth), // Convert eth to Wei and set it as msg.value
+      }
+    );
+    await mintTx.wait();
+    // return success if successful
+    return { success: true, message: "NFT minted successfully" };
+  } catch (error) {
+    let revertReason = extractRevertReason(error.message);
+    if (revertReason == null) {
+      revertReason = error.message;
+    }
+    console.error("Error minting NFT:", revertReason);
+    return { success: false, message: "Error minting NFT: " + revertReason };
+  }
+}
 
 // Function to stake an NFT
 async function stakeNFT(tokenId, walletAddress, privateKey) {
@@ -471,7 +577,7 @@ async function removeCache(walletAddress, tokenId, contract) {
     const name = rankValue + suitValue;
 
     // Change the on chain image
-    smartContractDeployer.setImage(tokenId, imageMapping[name]);
+    smartContractDeployer.setImage(tokenId, imageMap[name]);
 
     //Remove the tokenId key
     await deleteKeyFromRedis(tokenId);
@@ -538,6 +644,7 @@ async function deleteKeyFromRedis(key) {
 }
 
 module.exports = {
+  mintNFT,
   stakeNFT,
   unstakeNFT,
   getNFTAttributes,

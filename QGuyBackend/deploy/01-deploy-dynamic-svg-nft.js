@@ -9,7 +9,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  arguments = [mintFee];
+  arguments = [];
   const dynamicPngNft = await deploy("DynamicPngNft", {
     from: deployer,
     args: arguments,
@@ -17,17 +17,18 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     waitConfirmations: network.config.blockConfirmations || 1,
   });
 
-  // Verify the deployment
-  if (
-    !developmentChains.includes(network.name) &&
-    process.env.ETHERSCAN_API_KEY
-  ) {
-    log("Verifying...");
-    await verify(dynamicPngNft.address, arguments);
-  }
+  //Verify the deployment
+  // if (
+  //   !developmentChains.includes(network.name) &&
+  //   process.env.ETHERSCAN_API_KEY
+  // ) {
+  //   log("Verifying...");
+  //   await verify(dynamicPngNft.address, arguments);
+  // }
 
   // Log the contract address
   console.log("Contract deployed at:", dynamicPngNft.address);
+  console.log("Deployer is:", deployer);
 };
 
 module.exports.tags = ["all", "dynamicpng", "main"];

@@ -28,6 +28,10 @@ module.exports = {
       chainId: 5,
       blockConfirmations: 6,
     },
+    ganache: {
+      url: "HTTP://127.0.0.1:7545",
+      chainId: 1337,
+    },
   },
   solidity: {
     compilers: [

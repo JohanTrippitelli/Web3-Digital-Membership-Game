@@ -9,9 +9,8 @@ import "hardhat/console.sol";
 error ERC721Metadata__URI_QueryFor_NonExistentToken();
 
 contract DynamicPngNft is ERC721Enumerable, Ownable {
+    address private deployer;
     uint256 private s_tokenCounter;
-    bool private s_isQR;
-    uint256 s_mintFee;
 
     mapping(uint256 => int256) private s_tokenIdToMembershipStatus;
     mapping(uint256 => string) private s_tokenIdToImageURL;
@@ -23,21 +22,19 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
     event NFTStaked(address indexed staker, uint256 indexed tokenId);
     event NFTUnstaked(address indexed unstaker, uint256 indexed tokenId);
 
-    constructor(uint256 mintFee) ERC721("Dynamic PNG NFT", "DSN") {
+    constructor() ERC721("Dynamic PNG NFT", "DSN") {
+        deployer = msg.sender;
         s_tokenCounter = 0;
-        s_mintFee = mintFee;
     }
 
     function mintNft(
         int256 membership_status,
         string memory imageURL,
         string memory attributes,
-        bool isQR
+        uint256 mintFee
     ) public payable {
-        require(msg.value >= s_mintFee, "More ETH required");
+        require(msg.value >= mintFee, "More ETH required");
 
-        //set state variables and mapping according to the given parameters
-        s_isQR = isQR;
         //membership
         s_tokenIdToMembershipStatus[s_tokenCounter] = membership_status;
         //imageURL
@@ -47,6 +44,9 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         //Mint the NFT now, increment the token counter, and emit the created event
         _safeMint(msg.sender, s_tokenCounter);
         s_tokenCounter = s_tokenCounter + 1;
+
+        // Collect the eth
+        payable(deployer).transfer(msg.value);
         emit CreatedNFT(s_tokenCounter, membership_status);
     }
 
@@ -162,9 +162,5 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         if (membership_status == 1) {
             s_tokenIdToImageURL[tokenId] = image;
         }
-    }
-
-    function setMintFee(uint256 mintFee) public onlyOwner {
-        s_mintFee = mintFee;
     }
 }

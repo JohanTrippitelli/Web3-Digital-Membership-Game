@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  mintNFT,
   stakeNFT,
   unstakeNFT,
   getNFTAttributes,
@@ -14,6 +15,28 @@ const {
   switchFits,
 } = require("../controllers/nftController");
 
+// Route to minting an NFT
+router.post("/mint", async (req, res) => {
+  const { privateKey, name, eth } = req.body;
+
+  try {
+    // Perform the switch logic using the provided tokenId
+    const mintResult = await mintNFT(privateKey, name, eth);
+
+    if (mintResult.success) {
+      res.json(mintResult);
+    } else {
+      res.status(400).json(mintResult); // Return an error response
+    }
+  } catch (error) {
+    console.error("Error minting:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error while minting",
+    });
+  }
+});
+
 // Route to stake an NFT
 router.post("/stake", async (req, res) => {
   const { tokenId, walletAddress, privateKey } = req.body;
@@ -22,7 +45,7 @@ router.post("/stake", async (req, res) => {
 });
 
 // Route to unstake an NFT
-router.post("/unstake", async (req, res) => {
+router.delete("/unstake", async (req, res) => {
   const { tokenId, walletAddress, privateKey } = req.body;
   const result = await unstakeNFT(tokenId, walletAddress, privateKey);
   res.json(result);

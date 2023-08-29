@@ -8,9 +8,9 @@ const originalImageURL =
   "ipfs://QmNh1yszuGh7VTfwiLvd2gRB3JSt7iHfQHf5aRKeuvS47L";
 const alteredImageURL = "ipfs://QmVWUXufJCzjjsPtKBSRczCYKpDDdV29VpADPYjt54NSBy";
 const originalURI =
-  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiSyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm51ZGUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1OaDF5c3p1R2g3VlRmd2lMdmQyZ1JCM0pTdDdpSGZRSGY1YVJLZXV2UzQ3TCIsInN0YWtlZCI6ImZhbHNlIn0=";
+  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiSyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1OaDF5c3p1R2g3VlRmd2lMdmQyZ1JCM0pTdDdpSGZRSGY1YVJLZXV2UzQ3TCIsInN0YWtlZCI6ImZhbHNlIn0=";
 const alteredURI =
-  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiSyJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm51ZGUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1WV1VYdWZKQ3pqanNQdEtCU1JjekNZS3BERGRWMjlWcEFEUFlqdDU0TlNCeSIsInN0YWtlZCI6ImZhbHNlIn0=";
+  "data:application/json;base64,eyJuYW1lIjoiRHluYW1pYyBQTkcgTkZUIiwgImRlc2NyaXB0aW9uIjoiUSIsICJhdHRyaWJ1dGVzIjpbeyJ0cmFpdF90eXBlIjogIlJhbmsiLCAidmFsdWUiOiAiQSJ9LHsidHJhaXRfdHlwZSI6ICJzdWl0IiwgInZhbHVlIjogIkgifSwgeyJ0cmFpdF90eXBlIjogImhlYWQiLCAidmFsdWUiOiAibm9uZSJ9LHsidHJhaXRfdHlwZSI6ICJvdXRlcl9jaGVzdCIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImlubmVyX2NoZXN0IiwgInZhbHVlIjogIm5vbmUifSx7InRyYWl0X3R5cGUiOiAibGVncyIsICJ2YWx1ZSI6ICJub25lIn0seyJ0cmFpdF90eXBlIjogImZlZXQiLCAidmFsdWUiOiAibm9uZSJ9XSwiaW1hZ2UiOiJpcGZzOi8vUW1WV1VYdWZKQ3pqanNQdEtCU1JjekNZS3BERGRWMjlWcEFEUFlqdDU0TlNCeSIsInN0YWtlZCI6ImZhbHNlIn0=";
 !developmentChains.includes(network.name)
   ? describe.skip
   : describe("Dynamic PNG NFT Unit Tests", function () {
@@ -23,7 +23,7 @@ const alteredURI =
         dynamicPngNft = await ethers.getContract("DynamicPngNft");
         initial_status = 1;
         initial_attributes =
-          '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "nude"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
+          '[{"trait_type": "Rank", "value": "K"},{"trait_type": "suit", "value": "H"}, {"trait_type": "head", "value": "none"},{"trait_type": "outer_chest", "value": "none"},{"trait_type": "inner_chest", "value": "none"},{"trait_type": "legs", "value": "none"},{"trait_type": "feet", "value": "none"}]';
       });
 
       describe("mintNft", () => {
@@ -34,7 +34,7 @@ const alteredURI =
               status,
               originalImageURL,
               initial_attributes,
-              false,
+              mintFee,
               { value: mintFee } // Pass the mint fee as the value field in the transaction
             )
           ).to.emit(dynamicPngNft, "CreatedNFT");
@@ -51,16 +51,16 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
-          const tokenURI = await dynamicPngNft.tokenURI(0);
-          assert.equal(tokenURI, originalURI);
+          const image = await dynamicPngNft.getImage(0);
+          assert.equal(image, originalImageURL);
 
           //Now change the image using the setter function
           await dynamicPngNft.setImage(tokenId, alteredImageURL);
-          const tokenURI2 = await dynamicPngNft.tokenURI(0);
-          assert.equal(tokenURI2, alteredURI);
+          const image2 = await dynamicPngNft.getImage(0);
+          assert.equal(image2, alteredImageURL);
         });
 
         it("does not alter the image when prompted and the membership status is 0", async function () {
@@ -69,7 +69,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
           const tokenURI = await dynamicPngNft.tokenURI(0);
@@ -85,12 +85,12 @@ const alteredURI =
       describe("Fit/Attribute altering", () => {
         it("sets the proper fit and attribute", async function () {
           const status = 0;
-          const tokenuri = dynamicPngNft.tokenURI(0);
+          const originalAtt = dynamicPngNft.getAttributes(0);
           const txResponse = await dynamicPngNft.mintNft(
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
           const attributes =
@@ -102,8 +102,8 @@ const alteredURI =
 
           assert.equal(Att, attributes);
 
-          const uri = dynamicPngNft.tokenURI(0);
-          assert.notEqual(uri, tokenuri);
+          const newAtt = dynamicPngNft.getAttributes(0);
+          assert.notEqual(newAtt, originalAtt);
         });
         it("collects JSON object from metadata and properly seperates sections", async function () {
           const status = 0;
@@ -111,7 +111,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
           const tokenuri = await dynamicPngNft.tokenURI(0);
@@ -169,7 +169,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -187,7 +187,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
           const tokenId = 0;
@@ -209,7 +209,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -228,7 +228,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -245,7 +245,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -282,7 +282,7 @@ const alteredURI =
               status,
               originalImageURL,
               initial_attributes,
-              false,
+              mintFee,
               { value: mintFee } // Pass the mint fee as the value field in the transaction
             );
             i++;
@@ -325,7 +325,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -346,7 +346,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -367,7 +367,7 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
@@ -395,13 +395,46 @@ const alteredURI =
             status,
             originalImageURL,
             initial_attributes,
-            false,
+            mintFee,
             { value: mintFee } // Pass the mint fee as the value field in the transaction
           );
 
           await expect(
             dynamicPngNft.connect(accounts[1]).stakeNFT(0)
           ).to.be.revertedWith("Only the owner can stake the NFT");
+        });
+        it("gets the tokens owned by wallet", async function () {
+          const status = 0;
+          const deployer = accounts[0];
+
+          // Mint two NFTs
+          const txResponse = await dynamicPngNft.mintNft(
+            status,
+            originalImageURL,
+            initial_attributes,
+            mintFee,
+            { value: mintFee } // Pass the mint fee as the value field in the transaction
+          );
+          const txResponse2 = await dynamicPngNft.mintNft(
+            status,
+            originalImageURL,
+            initial_attributes,
+            mintFee,
+            { value: mintFee } // Pass the mint fee as the value field in the transaction
+          );
+
+          const balance = await dynamicPngNft.balanceOf(deployer.address);
+          let two = 2;
+          two = two.toString();
+          assert.equal(two, balance.toString());
+
+          for (let index = 0; index < balance; index++) {
+            const tokenId = await dynamicPngNft.tokenOfOwnerByIndex(
+              deployer.address,
+              index
+            );
+            assert.equal(tokenId.toString(), index.toString());
+          }
         });
       });
     });

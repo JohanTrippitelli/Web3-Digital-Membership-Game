@@ -248,7 +248,7 @@ async function unstakeNFT(tokenId, walletAddress, privateKey) {
     );
 
     // Remove the attributes for the tokenId from the in-memory cache
-    await removeCache(walletAddress, tokenId, smartContract);
+    await removeCache(walletAddress, tokenId);
 
     stakedTokens = await getValueFromRedis(walletAddress);
     if (stakedTokens == null) {
@@ -555,7 +555,7 @@ async function updateCache(walletAddress, tokenId, attributes) {
   await setValueInRedis(walletAddress, stakersTokens);
 }
 
-async function removeCache(walletAddress, tokenId, contract) {
+async function removeCache(walletAddress, tokenId) {
   console.log("Deleting Key ------------------------------------");
   //Update on-chain data using the retrieved attributes
   try {

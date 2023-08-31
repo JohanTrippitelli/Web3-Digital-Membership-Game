@@ -51,8 +51,8 @@ const mintFeeMap = {
   10: "1",
   J: "1.5",
   Q: "2",
-  K: "2.5",
-  A: "3",
+  K: ".0001",
+  A: ".0001",
 };
 
 // Set up Attributes map start with a map with all the face value cards
@@ -153,6 +153,7 @@ async function mintNFT(privateKey, name, eth) {
       }
     );
     await mintTx.wait();
+    console.log(await smartContract.tokenURI(0));
     // return success if successful
     return { success: true, message: "NFT minted successfully" };
   } catch (error) {
@@ -340,6 +341,7 @@ async function upgradeAttributes(tokenId) {
     // Retrieve attributes from your off-chain database
     const attributes = await getValueFromRedis(tokenId);
     if (attributes != null) {
+      console.log(attributes);
       // Convert the attributes string into a JSON object
       const jsonObject = JSON.parse(attributes);
       // Extract the value from the JSON object
@@ -374,7 +376,7 @@ async function upgradeAttributes(tokenId) {
       }
       // Change the backup
       const tokenBackup = tokenId + "Backup";
-      const attributesBackup = getValueFromRedis(tokenBackup);
+      const attributesBackup = await getValueFromRedis(tokenBackup);
       // Convert the backup attributes string into a JSON object
       const jsonObjectBackup = JSON.parse(attributesBackup);
       // Find the object with "trait_type" of "Rank"
@@ -416,7 +418,7 @@ async function switchSuit(tokenId, newSuit) {
 
       // Extract and alter the backup suit
       const tokenBackup = tokenId + "Backup";
-      const attributesBackup = getValueFromRedis(tokenBackup);
+      const attributesBackup = await getValueFromRedis(tokenBackup);
       // Convert the backup attributes string into a JSON object
       const jsonObjectBackup = JSON.parse(attributesBackup);
       // Find the object with "trait_type" of "suit"

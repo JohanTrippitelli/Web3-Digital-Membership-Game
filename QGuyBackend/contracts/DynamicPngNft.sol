@@ -3,6 +3,7 @@ pragma solidity ^0.8.8;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "base64-sol/base64.sol";
 import "hardhat/console.sol";
 
@@ -22,7 +23,7 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
     event NFTStaked(address indexed staker, uint256 indexed tokenId);
     event NFTUnstaked(address indexed unstaker, uint256 indexed tokenId);
 
-    constructor() ERC721("Dynamic PNG NFT", "DSN") {
+    constructor() ERC721("DripQ", "Q") {
         deployer = msg.sender;
         s_tokenCounter = 0;
     }
@@ -68,6 +69,9 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
         string memory attributes = s_tokenIdToAttributes[tokenId];
         // Retrieve the staking status of the NFT
         bool staked = s_tokenIdToStaked[tokenId];
+        string memory tokenName = string(
+            abi.encodePacked("Q #", Strings.toString(tokenId))
+        );
 
         //The following return statement utilizes abi.encodepacked as a way of concatonating prefixes with our metadata then casting as a string
         return
@@ -78,7 +82,7 @@ contract DynamicPngNft is ERC721Enumerable, Ownable {
                         bytes(
                             abi.encodePacked(
                                 '{"name":"',
-                                name(), // You can add whatever name here
+                                tokenName,
                                 '", "description":"Q", ',
                                 '"attributes":',
                                 attributes,

@@ -4,11 +4,15 @@ const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPng
 const { storeImages } = require("../../utils/uploadToPinata");
 const { addTransactionSupport } = require("ioredis/built/transaction");
 const { string } = require("hardhat/internal/core/params/argumentTypes");
+const CustodialWalletService = require("../../services/custodialWallets/walletGeneration");
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const abi = contract.abi;
 let deployer;
+
+//Import a new class object for wallet creation
+const custodialWalletService = new CustodialWalletService();
 
 //Set up RedisClient Server
 let redisClient = createClient();
@@ -34,7 +38,7 @@ async function imageMapping() {
     imageMap = await storeImages(imagesLocation);
 
     console.log("Image URIs uploaded to Mapping. They have keys:");
-    console.log(Object.keys(imageMap));
+    console.log(Object.values(imageMap));
   }
 }
 
@@ -126,6 +130,18 @@ const smartContractDeployer = new ethers.Contract(
   abi,
   deployer
 );
+
+//Create a wallet for a nonWeb3 user
+async function createWallet(userName) {
+  try {
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        error: "Internal server error when creating a non Web3 user wallet",
+      });
+  }
+}
 
 //Mint function
 async function mintNFT(privateKey, name, eth) {
@@ -646,6 +662,7 @@ async function deleteKeyFromRedis(key) {
 }
 
 module.exports = {
+  createWallet,
   mintNFT,
   stakeNFT,
   unstakeNFT,

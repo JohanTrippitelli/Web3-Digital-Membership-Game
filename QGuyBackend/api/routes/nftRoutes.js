@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  createWallet,
   mintNFT,
   stakeNFT,
   unstakeNFT,
@@ -37,6 +38,12 @@ router.post("/mint", async (req, res) => {
   }
 });
 
+// Route for wallet creation for non web3 users
+router.post("/nonWeb3/createWallet", async (req, res) => {
+  const { userName } = req.body;
+  const result = await createWallet(userName);
+  res.json(result);
+});
 // Route to stake an NFT
 router.post("/stake", async (req, res) => {
   const { tokenId, walletAddress, privateKey } = req.body;

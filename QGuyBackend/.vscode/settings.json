@@ -1,0 +1,18 @@
+{
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default",
+        "enableSsl": "Disabled"
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "dripQConnection",
+      "database": "dripQ_0",
+      "username": "jtrippitelli",
+      "password": "testerSQL10"
+    }
+  ]
+}

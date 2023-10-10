@@ -1,3 +1,4 @@
+// Imports
 const { network, ethers } = require("hardhat");
 const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
@@ -5,6 +6,9 @@ const { storeImages } = require("../../utils/uploadToPinata");
 const { addTransactionSupport } = require("ioredis/built/transaction");
 const { string } = require("hardhat/internal/core/params/argumentTypes");
 const CustodialWalletService = require("../../services/custodialWallets/walletGeneration");
+const db = require("../../database/db"); // Import the database connection module
+
+// Constants Definition
 const API_KEY = process.env.API_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -135,11 +139,9 @@ const smartContractDeployer = new ethers.Contract(
 async function createWallet(userName) {
   try {
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Internal server error when creating a non Web3 user wallet",
-      });
+    res.status(500).json({
+      error: "Internal server error when creating a non Web3 user wallet",
+    });
   }
 }
 

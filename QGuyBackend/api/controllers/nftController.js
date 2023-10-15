@@ -1,12 +1,11 @@
 // Imports
-const { network, ethers } = require("hardhat");
+const { ethers } = require("hardhat");
 const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
 const { storeImages } = require("../../utils/uploadToPinata");
-const { addTransactionSupport } = require("ioredis/built/transaction");
-const { string } = require("hardhat/internal/core/params/argumentTypes");
 const CustodialWalletService = require("../../services/custodialWallets/walletGeneration");
 const db = require("../../database/db"); // Import the database connection module
+const { addUser } = require("../../database/newUser");
 
 // Constants Definition
 const API_KEY = process.env.API_KEY;
@@ -134,6 +133,17 @@ const smartContractDeployer = new ethers.Contract(
   abi,
   deployer
 );
+
+// Create and store a new User in the Database
+async function newUser(userName, password, region, gender) {
+  addUser(userName, password, region, gender, (err, result) => {
+    if (err) {
+      console.error("Error adding user:", err);
+      return;
+    }
+    console.log("User added successfully:", result);
+  });
+}
 
 //Create a wallet for a nonWeb3 user
 async function createWallet(userName) {
@@ -535,6 +545,17 @@ async function switchFits(tokenId) {
 
 async function updateCache(walletAddress, tokenId, attributes) {
   console.log("Adding Key ------------------------------------");
+  const values = [walletAddress, tokenId, attributes];
+
+  db.query(query, values, (error, results) => {
+    if (error) {
+      console.error("Error adding user:", error);
+      // Handle the error appropriately, e.g., return an error response to the API client.
+    } else {
+      console.log("User added successfully");
+      // Handle success, e.g., return a success response to the API client.
+    }
+  });
   let stakedTokens, stakersTokens;
   // Update the tokenId -> attributes
   await setValueInRedis(tokenId, attributes);
@@ -664,6 +685,7 @@ async function deleteKeyFromRedis(key) {
 }
 
 module.exports = {
+  newUser,
   createWallet,
   mintNFT,
   stakeNFT,

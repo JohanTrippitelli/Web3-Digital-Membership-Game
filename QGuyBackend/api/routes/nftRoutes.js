@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  newUser,
   createWallet,
   mintNFT,
   stakeNFT,
@@ -15,6 +16,14 @@ const {
   setFitBackup,
   switchFits,
 } = require("../controllers/nftController");
+
+// Route to post a new User
+router.post("/newUser", async (req, res) => {
+  const { userName, password, region, gender } = req.body;
+  // Perform the switch logic using the provided tokenId
+  const result = await newUser(userName, password, region, gender);
+  res.json(result);
+});
 
 // Route to minting an NFT
 router.post("/mint", async (req, res) => {

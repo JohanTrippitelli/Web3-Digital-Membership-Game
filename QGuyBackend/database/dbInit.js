@@ -1,23 +1,64 @@
-// dbInit.js
 const db = require("./db"); // Import the database connection module
 
-// Function to create tables and perform any other database initialization tasks
 function initializeDatabase() {
-  const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS users (
-      user_id INT AUTO_INCREMENT PRIMARY KEY,
-      username VARCHAR(255) NOT NULL UNIQUE,
-      password_hash VARCHAR(255) NOT NULL,
-      location VARCHAR(255),
-      decision_data JSON
-    )
+  // Table 1: ML Data
+  const createMLDataTableQuery = `
+    CREATE TABLE IF NOT EXISTS ml_data (
+      user_name VARCHAR(255) NOT NULL UNIQUE,
+      encrypted_password VARCHAR(255) NOT NULL,
+      region VARCHAR(255) NOT NULL,
+      gender VARCHAR(255) NOT NULL,
+      fits JSON,
+      likes JSON,
+      dislikes JSON,
+      PRIMARY KEY (user_name)
+    );
   `;
 
-  db.query(createTableQuery, (err) => {
+  // Table 2: User Data
+  const createUserDataTableQuery = `
+    CREATE TABLE IF NOT EXISTS user_data (
+      user_name VARCHAR(255) NOT NULL UNIQUE,
+      wallet_address VARCHAR(255) NOT NULL,
+      wallet_hidden BOOLEAN NOT NULL,
+      tokens JSON,
+      PRIMARY KEY (user_name)
+    );
+  `;
+
+  // Table 3: Token Data
+  const createTokenDataTableQuery = `
+    CREATE TABLE IF NOT EXISTS token_data (
+      token BIGINT NOT NULL,
+      staked BOOLEAN NOT NULL,
+      fit1 JSON,
+      fit2 JSON,
+      PRIMARY KEY (token)
+    );
+  `;
+
+  // Execute Queries
+  db.query(createMLDataTableQuery, (err) => {
     if (err) {
-      console.error("Error creating the table:", err);
+      console.error("Error creating the table 'ml_data':", err);
     } else {
-      console.log('Table "users" created successfully');
+      console.log("Table 'ml_data' created successfully");
+    }
+  });
+
+  db.query(createUserDataTableQuery, (err) => {
+    if (err) {
+      console.error("Error creating the table 'user_data':", err);
+    } else {
+      console.log("Table 'user_data' created successfully");
+    }
+  });
+
+  db.query(createTokenDataTableQuery, (err) => {
+    if (err) {
+      console.error("Error creating the table 'token_data':", err);
+    } else {
+      console.log("Table 'token_data' created successfully");
     }
   });
 }

@@ -65,6 +65,20 @@ router.post("/:userName/connectWallet", async (req, res) => {
   }
 });
 
+// Create a wallet for an existing user
+router.post("/:userName/createWallet", async (req, res) => {
+  const { userName } = req.params;
+
+  try {
+    const result = await createWallet(userName);
+    res.status(201).json({ message: "Success creating a new wallet", result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failure creating a new wallet", error: err.message });
+  }
+});
+
 // Route to minting an NFT
 router.post("/mint", async (req, res) => {
   const { privateKey, name, eth } = req.body;

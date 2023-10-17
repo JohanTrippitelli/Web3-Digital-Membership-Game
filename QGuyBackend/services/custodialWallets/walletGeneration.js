@@ -1,21 +1,46 @@
 const ethers = require("ethers");
+const db = require("../../database/db");
+const kms = require("../../database/mockKMS");
 
 class CustodialWalletService {
-  constructor() {
-    this.wallets = {};
-  }
+  generateWallet(userName, callback) {
+    const wallet = ethers.Wallet.createRandom();
 
-  async generateWallet(userName) {
-    try {
-      const wallet = ethers.Wallet.createRandom();
-      // Store wallet information in the database
-      const newWallet = await WalletModel.create({
-        username: userName,
-        address: wallet.address,
-        privateKey: wallet.privateKey,
-      });
-      return;
-    } catch (error) {}
+    // Encrypt the private key using your mock KMS
+    const encryptedPrivateKey = kms.encrypt(wallet.privateKey);
+
+    // Define the SQL query to insert the wallet data into `user_data`
+    const query = `
+      INSERT INTO user_data (
+        user_name, wallet_address, wallet_hidden, tokens, secure_private_key
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    const emptyTokensList = JSON.stringify([]);
+
+    // Insert the wallet data into `user_data`
+    db.query(
+      query,
+      [
+        userName,
+        wallet.address,
+        true, // wallet_hidden set to true
+        emptyTokensList, // empty list for tokens
+        encryptedPrivateKey, // KMS encrypted private key
+      ],
+      (err, result) => {
+        if (err) {
+          console.error("Error storing the wallet in the database:", err);
+          return callback(err);
+        }
+        console.log("Wallet stored successfully for user:", userName);
+        callback(null, {
+          userName: userName,
+          address: wallet.address,
+        });
+      }
+    );
   }
 }
 

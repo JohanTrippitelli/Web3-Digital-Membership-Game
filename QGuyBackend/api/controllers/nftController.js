@@ -10,6 +10,7 @@ const { createClient } = require("redis");
 
 // Wallet class import
 const CustodialWalletService = require("../../services/custodialWallets/walletGeneration");
+const custodialWallet = new CustodialWalletService();
 
 // Database import
 const db = require("../../database/db"); // Import the database connection module
@@ -189,12 +190,30 @@ async function connectWallet(userName, walletAddress, privateKey) {
 
 //Create a wallet for a nonWeb3 user
 async function createWallet(userName) {
-  try {
-  } catch (error) {
-    res.status(500).json({
-      error: "Internal server error when creating a non Web3 user wallet",
+  return new Promise((resolve, reject) => {
+    // Check if the user exists
+    checkUserExists(userName, (err, exists) => {
+      if (err) {
+        console.error("Error checking user existence:", err);
+        return reject(err);
+      }
+
+      if (!exists) {
+        console.error("User does not exist in ml_data table.");
+        return reject(new Error("User does not exist in ml_data table."));
+      }
+
+      // User exists, store private key
+      custodialWallet.generateWallet(userName, (err, result) => {
+        if (err) {
+          console.error("Error generating new wallet:", err);
+          return reject(err);
+        }
+        console.log("Wallet generated successfully:", result);
+        return resolve(result);
+      });
     });
-  }
+  });
 }
 
 //Mint function

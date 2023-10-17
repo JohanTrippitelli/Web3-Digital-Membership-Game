@@ -17,20 +17,20 @@ function addUser(userName, password, region, gender, callback) {
       return callback(err);
     }
 
-    // Define the SQL query
-    const query = `
-            INSERT INTO ml_data (
-                user_name, encrypted_password, region, gender, 
-                fits, likes, dislikes
-            ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
+    // Define the SQL query to add to ml_data
+    const mlDataQuery = `
+                INSERT INTO ml_data (
+                    user_name, encrypted_password, region, gender,
+                    fits, likes, dislikes
+                ) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
 
     const emptyJsonArray = JSON.stringify([]);
 
-    // Insert the user data into the database, using the hashed password
+    // Insert the user data into ml_data
     db.query(
-      query,
+      mlDataQuery,
       [
         userName,
         hashedPassword,
@@ -40,18 +40,17 @@ function addUser(userName, password, region, gender, callback) {
         emptyJsonArray,
         emptyJsonArray,
       ],
-      (err, results) => {
+      (err, mlDataResults) => {
         if (err) {
-          console.error("Error inserting data into the database:", err);
+          console.error("Error inserting data into ml_data:", err);
           return callback(err);
         }
-        console.log("User added to the database:", results);
-        callback(null, results);
+
+        console.log("User added to ml_data:", mlDataResults);
+        callback(null, mlDataResults); // <-- This line was missing!
       }
     );
   });
 }
 
-module.exports = {
-  addUser,
-};
+module.exports = { addUser };

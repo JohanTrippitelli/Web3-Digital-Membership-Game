@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
+//Database
+const { verifyUser } = require("../../database/userLogin");
+
 const {
   newUser,
+  connectWallet,
   createWallet,
   mintNFT,
   stakeNFT,
@@ -20,9 +24,45 @@ const {
 // Route to post a new User
 router.post("/newUser", async (req, res) => {
   const { userName, password, region, gender } = req.body;
-  // Perform the switch logic using the provided tokenId
-  const result = await newUser(userName, password, region, gender);
-  res.json(result);
+
+  try {
+    const result = await newUser(userName, password, region, gender);
+    // Success case: send a 201 status code (created) with a success message.
+    res.status(201).json({ message: "Success creating new user", result });
+  } catch (err) {
+    // Error case: send a 500 status code (internal server error) with an error message.
+    res
+      .status(500)
+      .json({ message: "Failure creating new user", error: err.message });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const { userName, password } = req.body;
+
+  try {
+    const result = await verifyUser(userName, password);
+    // Success: Send a 200 status code with a success message
+    res.status(200).json(result);
+  } catch (err) {
+    // Failure: Send a 401 status code (unauthorized) with an error message
+    res.status(401).json({ message: err.message });
+  }
+});
+
+// Connect pre existing wallet to a user
+router.post("/:userName/connectWallet", async (req, res) => {
+  const { userName } = req.params;
+  const { walletAddress, privateKey } = req.body;
+
+  try {
+    const result = await connectWallet(userName, walletAddress, privateKey);
+    res.status(201).json({ message: "Success connecting new wallet", result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failure connecting new wallet", error: err.message });
+  }
 });
 
 // Route to minting an NFT

@@ -1,11 +1,23 @@
-// Imports
+// Hardhat/Contract imports
 const { ethers } = require("hardhat");
-const { createClient } = require("redis");
 const contract = require("../../artifacts/contracts/DynamicPngNft.sol/DynamicPngNft.json");
+
+//Pinata
 const { storeImages } = require("../../utils/uploadToPinata");
+
+// Redis Imports
+const { createClient } = require("redis");
+
+// Wallet class import
 const CustodialWalletService = require("../../services/custodialWallets/walletGeneration");
+
+// Database import
 const db = require("../../database/db"); // Import the database connection module
 const { addUser } = require("../../database/newUser");
+const {
+  checkUserExists,
+  storeWalletData,
+} = require("../../database/storeWallet");
 
 // Constants Definition
 const API_KEY = process.env.API_KEY;
@@ -136,12 +148,42 @@ const smartContractDeployer = new ethers.Contract(
 
 // Create and store a new User in the Database
 async function newUser(userName, password, region, gender) {
-  addUser(userName, password, region, gender, (err, result) => {
-    if (err) {
-      console.error("Error adding user:", err);
-      return;
-    }
-    console.log("User added successfully:", result);
+  return new Promise((resolve, reject) => {
+    addUser(userName, password, region, gender, (err, result) => {
+      if (err) {
+        console.error("Error adding user:", err);
+        return reject(err); // reject promise with err object
+      }
+      console.log("User added successfully:", result);
+      return resolve(result); // resolve promise with result object
+    });
+  });
+}
+
+async function connectWallet(userName, walletAddress, privateKey) {
+  return new Promise((resolve, reject) => {
+    // Check if the user exists
+    checkUserExists(userName, (err, exists) => {
+      if (err) {
+        console.error("Error checking user existence:", err);
+        return reject(err);
+      }
+
+      if (!exists) {
+        console.error("User does not exist in ml_data table.");
+        return reject(new Error("User does not exist in ml_data table."));
+      }
+
+      // User exists, store private key
+      storeWalletData(userName, walletAddress, privateKey, (err, result) => {
+        if (err) {
+          console.error("Error storing private key:", err);
+          return reject(err);
+        }
+        console.log("Wallet connected successfully:", result);
+        return resolve(result);
+      });
+    });
   });
 }
 
@@ -686,6 +728,7 @@ async function deleteKeyFromRedis(key) {
 
 module.exports = {
   newUser,
+  connectWallet,
   createWallet,
   mintNFT,
   stakeNFT,

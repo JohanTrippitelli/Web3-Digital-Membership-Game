@@ -17,14 +17,15 @@ function initializeDatabase() {
 
   // Table 2: User Data
   const createUserDataTableQuery = `
-    CREATE TABLE IF NOT EXISTS user_data (
-      user_name VARCHAR(255) NOT NULL UNIQUE,
-      wallet_address VARCHAR(255) NOT NULL,
-      wallet_hidden BOOLEAN NOT NULL,
-      tokens JSON,
-      PRIMARY KEY (user_name)
-    );
-  `;
+CREATE TABLE IF NOT EXISTS user_data (
+  user_name VARCHAR(255) NOT NULL UNIQUE,
+  wallet_address VARCHAR(255) NOT NULL,
+  secure_private_key VARCHAR(255), 
+  wallet_hidden BOOLEAN NOT NULL,
+  tokens JSON,
+  PRIMARY KEY (user_name)
+);
+`;
 
   // Table 3: Token Data
   const createTokenDataTableQuery = `

@@ -1,6 +1,6 @@
-const db = require("./db"); // Import the database connection module
+const pool = require("./db"); // Import the database connection module
 
-function initializeDatabase() {
+async function initializeDatabase() {
   // Table 1: ML Data
   const createMLDataTableQuery = `
     CREATE TABLE IF NOT EXISTS ml_data (
@@ -38,30 +38,19 @@ CREATE TABLE IF NOT EXISTS user_data (
     );
   `;
 
-  // Execute Queries
-  db.query(createMLDataTableQuery, (err) => {
-    if (err) {
-      console.error("Error creating the table 'ml_data':", err);
-    } else {
-      console.log("Table 'ml_data' created successfully");
-    }
-  });
+  try {
+    // Execute Queries
+    await pool.query(createMLDataTableQuery);
+    console.log("Table 'ml_data' created successfully");
 
-  db.query(createUserDataTableQuery, (err) => {
-    if (err) {
-      console.error("Error creating the table 'user_data':", err);
-    } else {
-      console.log("Table 'user_data' created successfully");
-    }
-  });
+    await pool.query(createUserDataTableQuery);
+    console.log("Table 'user_data' created successfully");
 
-  db.query(createTokenDataTableQuery, (err) => {
-    if (err) {
-      console.error("Error creating the table 'token_data':", err);
-    } else {
-      console.log("Table 'token_data' created successfully");
-    }
-  });
+    await pool.query(createTokenDataTableQuery);
+    console.log("Table 'token_data' created successfully");
+  } catch (err) {
+    console.error("Error creating tables:", err);
+  }
 }
 
 module.exports = { initializeDatabase };

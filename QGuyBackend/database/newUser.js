@@ -5,52 +5,43 @@ const bcrypt = require("bcrypt");
 // A higher "saltRounds" value means a slower hashing process and thus provides more security
 const saltRounds = 10;
 
-function addUser(userName, password, region, gender, callback) {
+async function addUser(userName, password, region, gender) {
   if (!userName || !password || !region || !gender) {
-    return callback(new Error("Please provide all required parameters."));
+    throw new Error("Please provide all required parameters.");
   }
 
-  // Hash the password using bcrypt
-  bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
-    if (err) {
-      console.error("Error hashing password:", err);
-      return callback(err);
-    }
+  try {
+    // Hash the password using bcrypt
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Define the SQL query to add to ml_data
     const mlDataQuery = `
-                INSERT INTO ml_data (
-                    user_name, encrypted_password, region, gender,
-                    fits, likes, dislikes
-                ) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            `;
+      INSERT INTO ml_data (
+          user_name, encrypted_password, region, gender,
+          fits, likes, dislikes
+      ) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
 
     const emptyJsonArray = JSON.stringify([]);
 
     // Insert the user data into ml_data
-    db.query(
-      mlDataQuery,
-      [
-        userName,
-        hashedPassword,
-        region,
-        gender,
-        emptyJsonArray,
-        emptyJsonArray,
-        emptyJsonArray,
-      ],
-      (err, mlDataResults) => {
-        if (err) {
-          console.error("Error inserting data into ml_data:", err);
-          return callback(err);
-        }
+    const mlDataResults = await db.query(mlDataQuery, [
+      userName,
+      hashedPassword,
+      region,
+      gender,
+      emptyJsonArray,
+      emptyJsonArray,
+      emptyJsonArray,
+    ]);
 
-        console.log("User added to ml_data:", mlDataResults);
-        callback(null, mlDataResults); // <-- This line was missing!
-      }
-    );
-  });
+    console.log("User added to ml_data:", mlDataResults);
+    return mlDataResults;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
 }
 
 module.exports = { addUser };

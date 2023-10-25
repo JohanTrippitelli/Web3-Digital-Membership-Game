@@ -149,71 +149,52 @@ const smartContractDeployer = new ethers.Contract(
 
 // Create and store a new User in the Database
 async function newUser(userName, password, region, gender) {
-  return new Promise((resolve, reject) => {
-    addUser(userName, password, region, gender, (err, result) => {
-      if (err) {
-        console.error("Error adding user:", err);
-        return reject(err); // reject promise with err object
-      }
-      console.log("User added successfully:", result);
-      return resolve(result); // resolve promise with result object
-    });
-  });
+  try {
+    const result = await addUser(userName, password, region, gender);
+    console.log("User added successfully:", result);
+    return result;
+  } catch (err) {
+    console.error("Error adding user:", err);
+    throw err;
+  }
 }
 
+// Connect a wallet to the user
 async function connectWallet(userName, walletAddress, privateKey) {
-  return new Promise((resolve, reject) => {
-    // Check if the user exists
-    checkUserExists(userName, (err, exists) => {
-      if (err) {
-        console.error("Error checking user existence:", err);
-        return reject(err);
-      }
+  try {
+    const exists = await checkUserExists(userName);
+    if (!exists) {
+      console.error("User does not exist in ml_data table.");
+      throw new Error("User does not exist in ml_data table.");
+    }
 
-      if (!exists) {
-        console.error("User does not exist in ml_data table.");
-        return reject(new Error("User does not exist in ml_data table."));
-      }
-
-      // User exists, store private key
-      storeWalletData(userName, walletAddress, privateKey, (err, result) => {
-        if (err) {
-          console.error("Error storing private key:", err);
-          return reject(err);
-        }
-        console.log("Wallet connected successfully:", result);
-        return resolve(result);
-      });
-    });
-  });
+    const result = await storeWalletData(userName, walletAddress, privateKey);
+    console.log("Wallet connected successfully:", result);
+    return result;
+  } catch (error) {
+    console.error("Error in connectWallet:", error);
+    throw error;
+  }
 }
 
-//Create a wallet for a nonWeb3 user
 async function createWallet(userName) {
-  return new Promise((resolve, reject) => {
+  try {
     // Check if the user exists
-    checkUserExists(userName, (err, exists) => {
-      if (err) {
-        console.error("Error checking user existence:", err);
-        return reject(err);
-      }
+    const exists = await checkUserExists(userName);
 
-      if (!exists) {
-        console.error("User does not exist in ml_data table.");
-        return reject(new Error("User does not exist in ml_data table."));
-      }
+    if (!exists) {
+      console.error("User does not exist in ml_data table.");
+      throw new Error("User does not exist in ml_data table.");
+    }
 
-      // User exists, store private key
-      custodialWallet.generateWallet(userName, (err, result) => {
-        if (err) {
-          console.error("Error generating new wallet:", err);
-          return reject(err);
-        }
-        console.log("Wallet generated successfully:", result);
-        return resolve(result);
-      });
-    });
-  });
+    // User exists, generate wallet
+    const result = await custodialWallet.generateWallet(userName);
+    console.log("Wallet generated successfully:", result);
+    return result;
+  } catch (err) {
+    console.error("Error in createWallet:", err);
+    throw err;
+  }
 }
 
 //Mint function

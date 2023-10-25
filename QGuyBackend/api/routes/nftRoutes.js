@@ -24,11 +24,12 @@ const {
 // Route to post a new User
 router.post("/newUser", async (req, res) => {
   const { userName, password, region, gender } = req.body;
-
   try {
     const result = await newUser(userName, password, region, gender);
     // Success case: send a 201 status code (created) with a success message.
-    res.status(201).json({ message: "Success creating new user", result });
+    return res
+      .status(201)
+      .json({ message: "Success creating new user", result });
   } catch (err) {
     // Error case: send a 500 status code (internal server error) with an error message.
     res
@@ -39,7 +40,6 @@ router.post("/newUser", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { userName, password } = req.body;
-
   try {
     const result = await verifyUser(userName, password);
     // Success: Send a 200 status code with a success message

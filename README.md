@@ -1,11 +1,13 @@
-# QGuy
-Main repository for the Q application
+# DripQ - Web3 Smart Contract for Dynamic Memberships
+##Introduction
+Welcome to DripQ's repository! We're here to revolutionize fashion consumption with dynamic memberships represented by a deck of cards. This README gives you an overview of our project, its features, market analysis, team, and future plans.
 
-3 Main Directories should be available:
-  1) QGuyBackend: Handles all backend of the application including but not limited to: Solidity Contract definitions/deployment, Server Side acquisition and rendering...
-  2) QGuyFrontEnd: Will be handled in the future as a means of storing app development code making integration between front and backend easier.
-  3) AI: The backend development of the AI will be in its own directory since it will be complex and could confuse literacy of the rest of the backend. The AI will eventually be linked to the the app and will require its own server requests from the frontend.  
-    Basic Utility: 
-          a) Data collection from swiping data.
-          b) Development of personal accounts for each user characterizing each of their tastes.
-          c) Development of an overarching predictive scheme. Prediction of trend paths, if possible, for populations as a whole (eg: cities, communities, classes).
+##Project Overview
+DripQ introduces a fresh concept where users interact with a gamified fashion market, changing how clothes are bought and enjoyed. With web3 technology and smart contracts, DripQ offers dynamic memberships that can be traded, upgraded, and swapped effortlessly. Memberships come as a deck of cards, each tier granting access to exclusive clothing products.
+
+##Key Features:
+#Dynamic Memberships: Users buy memberships as NFTs, unlocking the full app experience.
+#Gamified Shopping: Users swipe through clothes, indicating preferences and influencing production.
+#NFT Representation: Memberships are NFTs, enabling digital sale and resale.
+#Membership Tiers: Thirteen tiers offer access to exclusive clothing.
+#User Engagement Rewards: Users earn DripQ Points, climbing tiers and unlocking higher-value catalogues.
